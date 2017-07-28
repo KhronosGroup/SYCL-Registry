@@ -1,17 +1,8 @@
 <?php
 $static_title = 'Khronos SYCL Registry';
-$static_breadcrumb = array(
-    '/registry/' => 'Registry',
-    'NOLINK' => 'SYCL Registry'
-);
+
 include_once("../../assets/static_pages/khr_page_top.php");
 ?>
-
-<h1 class="pagetitle">Khronos SYCL&trade; Registry</h1>
-<div id="mainformat">
-
-
-<h1 style="text-align:center"> Khronos SYCL&trade; Registry </h1>
 
 <p> The SYCL registry contains specifications of SYCL, a C++ programming
     model for <a href="https://www.khronos.org/registry/cl/"> OpenCL
