@@ -10,10 +10,12 @@ include_once("../../assets/static_pages/khr_page_top.php");
 
 <h6> SYCL Specification </h6>
 
-<p> The current version of SYCL is SYCL 2.2. Older versions are also linked. </p>
+<p> The current version of SYCL is SYCL 1.2.1. Other versions are also linked. </p>
 
 <ul>
-<li> <a href="specs/sycl-2.2.pdf"> SYCL 2.2 Specification </a> (February 15,
+<li> <a href="specs/sycl-1.2.1.pdf"> SYCL 1.2.1 Specification </a> (December 3,
+     2017). </li>
+<li> <a href="specs/sycl-2.2.pdf"> SYCL 2.2 Provisional Specification </a> (February 15,
      2016). </li>
 <li> <a href="specs/sycl-1.2.pdf"> SYCL 1.2 Specification </a> (May 8,
      2015). </li>
