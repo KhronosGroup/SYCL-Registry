@@ -15,10 +15,12 @@ include_once("../../assets/static_pages/khr_page_top.php");
 <ul>
 <li> <a href="specs/sycl-1.2.1.pdf"> SYCL 1.2.1 Specification revision 3</a>
      (July 19, 2018). </li>
-<li> <a href="specs/sycl-2.2.pdf"> SYCL 2.2 Provisional Specification </a> (February 15,
-     2016). </li>
 <li> <a href="specs/sycl-1.2.pdf"> SYCL 1.2 Specification </a> (May 8,
      2015). </li>
+<li> A provisional SYCL 2.2 specification was published in February 2016.  That
+     specification was an incomplete work in progress, and should be considered
+     deprecated (it is no longer linked here).  The SYCL 1.2.1 specification is
+     the latest version. </li>
 </ul>
 
 <h6> Providing Feedback on the Registry </h6>
