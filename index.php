@@ -23,19 +23,21 @@ include_once("../../assets/static_pages/khr_page_top.php");
      the latest version. </li>
 </ul>
 
-<h6> Providing Feedback on the Registry </h6>
+<h6> Providing Feedback</h6>
 
 <p> Khronos welcomes comments and bug reports. To provide feedback on the
     SYCL registry itself (such as reporting missing content, bad links,
-    etc.), file an issue in the <a
-    href="https://github.com/KhronosGroup/SYCL-Registry/issues">
-    SYCL-Registry </a> Github project. </p>
+    etc.), file an issue and/or create a pull-request in the <a
+    href="https://github.com/KhronosGroup/SYCL-Registry/">
+    SYCL-Registry</a> Github project. </p>
 
-<p> For the SYCL specification, file a bug on the <a
-    href="http://www.khronos.org/bugzilla/"> Khronos Bugzilla </a>. Make
-    sure to fill in the &quot;Product&quot; field in the bug entry form as
-    &quot;OpenCL&quot; and the &quot;Component&quot; field as
-    &quot;SYCL&quot;. </p>
+<p> For the SYCL specification, open an issue and/or make a
+    pull-request on <a
+    href="https://github.com/KhronosGroup/SYCL-Docs/">SYCL-Docs</a>.
+
+<p> For the SYCL conformance test suite, open an issue and/or make a
+    pull-request on <a
+    href="https://github.com/KhronosGroup/SYCL-CTS/">SYCL-CTS</a>.
 
 <?php include_once("../../assets/static_pages/khr_page_bottom.php"); ?>
 </body>
