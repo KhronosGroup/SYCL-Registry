@@ -13,8 +13,8 @@ include_once("../../assets/static_pages/khr_page_top.php");
 <p> The current version of SYCL is SYCL 1.2.1. Other versions are also linked. </p>
 
 <ul>
-<li> <a href="specs/sycl-1.2.1.pdf"> SYCL 1.2.1 Specification revision 5</a>
-     (Apr 18, 2019). </li>
+<li> <a href="specs/sycl-1.2.1.pdf"> SYCL 1.2.1 Specification revision 6</a>
+     (November 14, 2019). </li>
 <li> <a href="specs/sycl-1.2.pdf"> SYCL 1.2 Specification </a> (May 8,
      2015). </li>
 <li> A provisional SYCL 2.2 specification was published in February 2016.  That
