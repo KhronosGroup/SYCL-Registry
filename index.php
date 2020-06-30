@@ -15,6 +15,9 @@ thanks to feedback from users and implementers. Other versions are
 also linked. </p>
 
 <ul>
+<li> <a href="specs/sycl-2020-provisional.pdf"> SYCL 2020 Provisional
+     Specification revision 1</a> (June 30, 2020) </li>
+
 <li> <a href="specs/sycl-1.2.1.pdf"> SYCL 1.2.1 Specification revision 7</a>
      (April 27, 2020) </li>
 
