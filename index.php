@@ -24,11 +24,13 @@ include_once("../../assets/static_pages/khr_page_top.php");
 
 <h6> Providing Feedback</h6>
 
-<p> Khronos welcomes comments and bug reports. To provide feedback on the
-    SYCL registry itself (such as reporting missing content, bad links,
-    etc.), file an issue and/or create a pull-request in the <a
+<p> Khronos welcomes comments and bug reports. To provide feedback on
+    the SYCL registry itself (such as reporting missing content, bad
+    links, etc.), file an issue and/or create a pull-request in the <a
     href="https://github.com/KhronosGroup/SYCL-Registry">
-    SYCL-Registry</a> Github project. </p>
+    SYCL-Registry</a> Github project or on the <a
+    href="https://community.khronos.org/c/sycl">SYCL Forums</a>. </p>
+
 
 <p> For the SYCL specification, open an issue and/or make a
     pull-request on <a
