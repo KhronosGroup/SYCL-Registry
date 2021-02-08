@@ -50,7 +50,8 @@ also linked. </p>
     missing content, bad links, etc.), file an issue and/or create a
     pull-request in the <a
     href="https://github.com/KhronosGroup/SYCL-Registry">
-    SYCL-Registry</a> GitHub project. </p>
+    SYCL-Registry</a> GitHub project. Historian people can also look
+    at the SYCL history there.</p>
 
 <p> For the SYCL specification, open an issue and/or make a
     pull-request on <a
