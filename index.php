@@ -9,14 +9,20 @@ include_once("../../assets/static_pages/khr_page_top.php");
 
 <h2> SYCL Specification </h2>
 
-<p> The SYCL 2020 Provisional specification is expected to replace the
-current version of SYCL 1.2.1 with a final version later this year,
-thanks to feedback from users and implementers. Other versions are
-also linked. </p>
+<p> The SYCL 2020 specification is the latest specification. </p>
 
 <ul>
-<li> <a href="specs/sycl-2020-provisional.pdf"> SYCL 2020 Provisional
-     Specification revision 1</a> (June 30, 2020) </li>
+<li>
+  SYCL 2020 Specification revision 2
+  (<a href="specs/sycl-2020/html/sycl-2020.html">HTML</a>)
+  (<a href="specs/sycl-2020/pdf/sycl-2020.pdf">PDF</a>)
+  (February 9, 2021) </li>
+
+  <ul>
+  <li>
+   <a href="https://www.khronos.org/files/sycl/sycl-2020-reference-guide.pdf">
+      SYCL 2020 Reference Guide</a> </li>
+  </ul>
 
 <li> <a href="specs/sycl-1.2.1.pdf"> SYCL 1.2.1 Specification revision 7</a>
      (April 27, 2020) </li>
