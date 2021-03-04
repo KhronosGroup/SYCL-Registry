@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.12">
 <meta name="author" content="The Khronos® SYCL™ Working Group">
-<title>SYCL™ 2020 Specification (revision 2)</title>
+<title>SYCL™ 2020 Specification (revision 3)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -1006,11 +1006,11 @@ pre.rouge .w {
 </head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>SYCL<sup>™</sup> 2020 Specification (revision 2)</h1>
+<h1>SYCL<sup>™</sup> 2020 Specification (revision 3)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> SYCL<sup>™</sup> Working Group</span><br>
-<span id="revdate">2021-02-09 04:56:39Z</span>
-<br><span id="revremark">from git SYCL-2020/final-rev2 commit: 9bc5a11106cc1e17e97f2abd5cde73828b2c6bb8</span>
+<span id="revdate">2021-03-04 21:39:06Z</span>
+<br><span id="revremark">from git SYCL-2020/final-rev3 commit: 3aa000fbe94ab385edb02d24cadc0b94acd45604</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -1506,7 +1506,7 @@ pre.rouge .w {
 <li><a href="#sec:optional-kernel-features">5.7. Optional kernel features</a></li>
 <li><a href="#sec:device.attributes">5.8. Attributes for device code</a>
 <ul class="sectlevel3">
-<li><a href="#_kernel_attributes">5.8.1. Kernel attributes</a></li>
+<li><a href="#sec:kernel.attributes">5.8.1. Kernel attributes</a></li>
 <li><a href="#_device_function_attributes">5.8.2. Device function attributes</a></li>
 <li><a href="#subsec::attributes.deprecated">5.8.3. Deprecated kernel attribute syntax</a></li>
 </ul>
@@ -2235,7 +2235,7 @@ in parallel on any heterogeneous device available.</p>
       <span class="kr">accessor</span> <span class="n">writeResult</span> <span class="p">{</span> <span class="n">resultBuf</span><span class="p">,</span> <span class="n">cgh</span><span class="p">,</span> <span class="vm">write_only</span><span class="p">,</span> <span class="vm">no_init</span> <span class="p">};</span>
 
       <span class="c1">// Enqueue a parallel_for task with 1024 work-items</span>
-      <span class="n">cgh</span><span class="p">.</span><span class="fm">parallel_for</span><span class="p">(</span><span class="mi">1024</span><span class="p">,</span> <span class="p">[</span><span class="o">=</span><span class="p">](</span><span class="kr">id</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span> <span class="n">idx</span><span class="p">)</span> <span class="p">{</span> 
+      <span class="n">cgh</span><span class="p">.</span><span class="fm">parallel_for</span><span class="p">(</span><span class="mi">1024</span><span class="p">,</span> <span class="p">[</span><span class="o">=</span><span class="p">](</span><span class="kr">id</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span> <span class="n">idx</span><span class="p">)</span> <span class="p">{</span>
         <span class="c1">// Initialize each buffer element with its own rank number starting at 0</span>
         <span class="n">writeResult</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx</span><span class="p">;</span>
       <span class="p">});</span>  <span class="c1">// End of the kernel function</span>
@@ -2262,9 +2262,9 @@ The application is structured in three scopes which specify the different sectio
 The <a href="#kernel-scope">kernel scope</a> specifies a single kernel function that will
 be, or has been, compiled by a <a href="#device-compiler">device compiler</a> and executed on a
 <a href="#device">device</a>. In this example <a href="#kernel-scope">kernel scope</a> is defined by lines
-26 to 29.  The <a href="#command-group-scope">command group scope</a> specifies a unit of work which is
+25 to 26.  The <a href="#command-group-scope">command group scope</a> specifies a unit of work which is
 comprised of a <a href="#sycl-kernel-function">SYCL kernel function</a> and <a href="#accessor">accessors</a>.  In this
-example <a href="#command-group-scope">command group scope</a> is defined by lines 21 to 30.  The
+example <a href="#command-group-scope">command group scope</a> is defined by lines 20 to 28.  The
 <a href="#application-scope">application scope</a> specifies all other code outside of a
 <a href="#command-group-scope">command group scope</a>.
 These three scopes are used to control the application flow and the
@@ -2299,7 +2299,7 @@ execute kernels can be found in <a href="#subsec:invokingkernels">Section 4.9.4.
 </div>
 <div class="paragraph">
 <p>A <a href="#command-group-scope">command group scope</a> is the syntactic scope wrapped by the construction
-of a <a href="#command-group-function-object">command group function object</a> as seen on line 21. The
+of a <a href="#command-group-function-object">command group function object</a> as seen on line 19. The
 <a href="#command-group-function-object">command group function object</a> may invoke only a single
 <a href="#sycl-kernel-function">SYCL kernel function</a>, and it takes a parameter of type command group
 <span class="code">handler</span>, which is constructed by the runtime.</p>
@@ -2308,7 +2308,7 @@ of a <a href="#command-group-function-object">command group function object</a> 
 <p>All the requirements for a kernel to execute are
 defined in this <a href="#command-group-scope">command group scope</a>, as described in
 <a href="#sec:executionmodel">Section 3.7.1</a>. In this case the constructor used
-for <span class="code">myQueue</span> on line 15 is the default constructor, which allows
+for <span class="code">myQueue</span> on line 9 is the default constructor, which allows
 the queue to select the best underlying device to execute on, leaving the
 decision up to the runtime.</p>
 </div>
@@ -2316,13 +2316,13 @@ decision up to the runtime.</p>
 <p>In SYCL, data that is required within a <a href="#sycl-kernel-function">SYCL kernel function</a> must
 be contained within a <a href="#buffer">buffer</a>, <a href="#image">image</a>, or <a href="#usm">USM</a> allocation, as described in
 <a href="#sec:memory.model">Section 3.8</a>. We
-construct a buffer on line 18. Access to the <a href="#buffer">buffer</a> is controlled via
-an <a href="#accessor">accessor</a> which is constructed on line 23.
+construct a buffer on line 16. Access to the <a href="#buffer">buffer</a> is controlled via
+an <a href="#accessor">accessor</a> which is constructed on line 21.
 The <a href="#buffer">buffer</a> is used to
 keep track of access to the data and the <a href="#accessor">accessor</a> is used to request
 access to the data on a queue, as well as to track the dependencies between
 <a href="#sycl-kernel-function">SYCL kernel function</a>. In this example the <a href="#accessor">accessor</a> is used to
-write to the data buffer on line 28.</p>
+write to the data buffer on line 26.</p>
 </div>
 </div>
 <div class="sect2">
@@ -6790,10 +6790,9 @@ special member functions and common member functions are listed in
 <div class="paragraph">
 <p>A <a href="#platform">platform</a> can be queried for information using the <span class="code">get_info</span>
 member function of the <span class="code">platform</span> class, specifying one of the info
-parameters in <span class="code">info::platform</span>. Every <a href="#platform">platform</a>
-must produce a valid value for each info parameter. The possible values for
-each info parameter and any restrictions are defined in the specification
-of the <a href="#backend">SYCL backend</a> associated with the <a href="#platform">platform</a>. All info parameters in
+parameters in <span class="code">info::platform</span>.  The possible values for each info
+parameter and any restrictions are defined in the specification of the
+<a href="#backend">SYCL backend</a> associated with the <a href="#platform">platform</a>. All info parameters in
 <span class="code">info::platform</span> are specified in <a href="#table.platform.info">Table 18</a> and the
 synopsis for <span class="code">info::platform</span> is described in
 <a href="#appendix.platform.descriptors">Section A.1</a>.</p>
@@ -7123,10 +7122,9 @@ as described in <a href="#error-handling">Section 4.13</a>.</p>
 <div class="paragraph">
 <p>A <a href="#context">context</a> can be queried for information using the <span class="code">get_info</span>
 member function of the <span class="code">context</span> class, specifying one of the info
-parameters in <span class="code">info::context</span>. Every <a href="#context">context</a>
-must produce a valid value for each info parameter. The possible values for
-each info parameter and any restrictions are defined in the specification of
-the <a href="#backend">SYCL backend</a> associated with the <a href="#context">context</a>. All info parameters in
+parameters in <span class="code">info::context</span>.  The possible values for each info
+parameter and any restrictions are defined in the specification of the
+<a href="#backend">SYCL backend</a> associated with the <a href="#context">context</a>. All info parameters in
 <span class="code">info::context</span> are specified in <a href="#table.context.info">Table 21</a> and the synopsis
 for <span class="code">info::context</span> is described in <a href="#appendix.context.descriptors">Section A.2</a>.</p>
 </div>
@@ -7682,8 +7680,7 @@ with the <span class="code">errc::feature_not_supported</span> error code must b
 <div class="paragraph">
 <p>A <a href="#device">device</a> can be queried for information using the <span class="code">get_info</span>
 member function of the <span class="code">device</span> class, specifying one of the info
-parameters in <span class="code">info::device</span>. Every <a href="#device">device</a> must produce a
-valid value for each info parameter. The possible values for each info
+parameters in <span class="code">info::device</span>.  The possible values for each info
 parameter and any restriction are defined in the specification of the
 <a href="#backend">SYCL backend</a> associated with the <a href="#device">device</a>. All info parameters in
 <span class="code">info::device</span> are specified in <a href="#table.device.info">Table 25</a> and the synopsis
@@ -8563,7 +8560,9 @@ false otherwise.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="code">std::string</span></p></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
 <p>Deprecated in SYCL 2020.  Only supported when using the OpenCL backend
-      (see <a href="#chapter:opencl-backend">Appendix C</a>).</p>
+      (see <a href="#chapter:opencl-backend">Appendix C</a>).  Throws an <span class="code">exception</span> with the
+      <span class="code">errc::invalid</span> error code if used with a device whose backend is
+      not OpenCL.</p>
 </div>
 <div class="paragraph">
 <p>The value returned can be one of the following strings:</p>
@@ -8752,7 +8751,9 @@ description of these extensions.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="code">bool</span></p></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
 <p>Deprecated in SYCL 2020.  Only supported when using the OpenCL backend
-      (see <a href="#chapter:opencl-backend">Appendix C</a>).</p>
+      (see <a href="#chapter:opencl-backend">Appendix C</a>).  Throws an <span class="code">exception</span> with the
+      <span class="code">errc::invalid</span> error code if used with a device whose backend is
+      not OpenCL.</p>
 </div>
 <div class="paragraph">
 <p>Returns true if the preference for this SYCL <span class="code">device</span> is for the user to
@@ -10708,12 +10709,11 @@ on each accessor passed in as a function argument.</p>
 <div class="paragraph">
 <p>A <a href="#queue">queue</a> can be queried for information using the <span class="code">get_info</span>
 member function of the <span class="code">queue</span> class, specifying one of the info
-parameters in <span class="code">info::queue</span>. Every <a href="#queue">queue</a>
-must produce a valid value for each info parameter. The possible values for
-each info parameter and any restriction are defined in the specification of
-the <a href="#backend">SYCL backend</a> associated with the <a href="#queue">queue</a>. All info parameters in
-<span class="code">info::queue</span> are specified in <a href="#table.queue.info">Table 30</a> and the synopsis
-for <span class="code">info::queue</span> is described in <a href="#appendix.queue.descriptors">Section A.4</a>.</p>
+parameters in <span class="code">info::queue</span>.  The possible values for each info parameter
+and any restriction are defined in the specification of the <a href="#backend">SYCL backend</a>
+associated with the <a href="#queue">queue</a>. All info parameters in <span class="code">info::queue</span> are
+specified in <a href="#table.queue.info">Table 30</a> and the synopsis for <span class="code">info::queue</span> is
+described in <a href="#appendix.queue.descriptors">Section A.4</a>.</p>
 </div>
 <table id="table.queue.info" class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 30. Queue information descriptors</caption>
@@ -11177,12 +11177,11 @@ described in <a href="#subsubsec:exception.nohandler">Section 4.13.1.2</a>.</p>
 <div class="paragraph">
 <p>An <a href="#event">event</a> can be queried for information using the <span class="code">get_info</span>
 member function of the <span class="code">event</span> class, specifying one of the info
-parameters in <span class="code">info::event</span>. Every <a href="#event">event</a>
-must produce a valid value for each info parameter. The possible values for
-each info parameter and any restrictions are defined in the specification
-of the <a href="#backend">SYCL backend</a> associated with the <a href="#event">event</a>. All info parameters in
-<span class="code">info::event</span> are specified in <a href="#table.event.info">Table 35</a> and the synopsis
-for <span class="code">info::event</span> is described in <a href="#appendix.event.descriptors">Section A.6</a>.</p>
+parameters in <span class="code">info::event</span>.  The possible values for each info parameter
+and any restrictions are defined in the specification of the <a href="#backend">SYCL backend</a>
+associated with the <a href="#event">event</a>. All info parameters in <span class="code">info::event</span> are
+specified in <a href="#table.event.info">Table 35</a> and the synopsis for <span class="code">info::event</span> is
+described in <a href="#appendix.event.descriptors">Section A.6</a>.</p>
 </div>
 <table id="table.event.info" class="tableblock frame-all grid-all stretch">
 <caption class="title">Table 35. Event class information descriptors</caption>
@@ -11217,8 +11216,7 @@ for <span class="code">info::event</span> is described in <a href="#appendix.eve
 <p>An <a href="#event">event</a> can be queried for profiling information using the
 <span class="code">get_profiling_info</span> member function of the <span class="code">event</span> class,
 specifying one of the profiling info parameters enumerated in
-<span class="code">info::event_profiling</span>. Every <a href="#event">event</a> must produce a valid value
-for each info parameter. The possible values for each info parameter and
+<span class="code">info::event_profiling</span>.  The possible values for each info parameter and
 any restrictions are defined in the specification of the <a href="#backend">SYCL backend</a>
 associated with the <a href="#event">event</a>. All info parameters in
 <span class="code">info::event_profiling</span> are specified in <a href="#table.event.profilinginfo">Table 36</a>
@@ -15352,7 +15350,7 @@ same type must be equality comparable both in the host application and also in
 
 
 <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">dataT</span><span class="p">,</span>
-          <span class="kt">int</span> <span class="n">dimensions</span><span class="p">,</span>
+          <span class="kt">int</span> <span class="n">dimensions</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
           <span class="kr">access_mode</span> <span class="n">accessMode</span> <span class="o">=</span>
             <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">is_const_v</span><span class="o">&lt;</span><span class="n">dataT</span><span class="p">&gt;</span> <span class="o">?</span> <span class="kr">access_mode</span><span class="o">::</span><span class="n">read</span>
                                     <span class="o">:</span> <span class="kr">access_mode</span><span class="o">::</span><span class="n">read_write</span><span class="p">),</span>
@@ -17712,7 +17710,7 @@ type must be equality comparable.</p>
 108
 </pre></td><td class="code"><pre><span class="k">namespace</span> <span class="gh">sycl</span> <span class="p">{</span>
 <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">dataT</span><span class="p">,</span>
-          <span class="kt">int</span> <span class="n">dimensions</span><span class="p">,</span>
+          <span class="kt">int</span> <span class="n">dimensions</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
           <span class="kr">access_mode</span> <span class="n">accessMode</span> <span class="o">=</span>
             <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">is_const_v</span><span class="o">&lt;</span><span class="n">dataT</span><span class="p">&gt;</span> <span class="o">?</span> <span class="kr">access_mode</span><span class="o">::</span><span class="n">read</span>
                                     <span class="o">:</span> <span class="kr">access_mode</span><span class="o">::</span><span class="n">read_write</span><span class="p">),</span>
@@ -18284,7 +18282,7 @@ Additionally, accessors of the same type must be equality comparable.</p>
 75
 76
 </pre></td><td class="code"><pre><span class="k">namespace</span> <span class="gh">sycl</span> <span class="p">{</span>
-<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">dataT</span><span class="p">,</span> <span class="kt">int</span> <span class="n">dimensions</span><span class="p">&gt;</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">dataT</span><span class="p">,</span> <span class="kt">int</span> <span class="n">dimensions</span> <span class="o">=</span> <span class="mi">1</span><span class="p">&gt;</span>
 <span class="k">class</span> <span class="nc">local_accessor</span> <span class="p">{</span>
  <span class="nl">public:</span>
   <span class="k">using</span> <span class="n">value_type</span> <span class="o">=</span>             <span class="c1">// const dataT for read-only accessors, dataT otherwise</span>
@@ -27869,9 +27867,10 @@ is used to encapsulate all the member functions provided in a command group scop
 <p>This function must only be used to invoke a kernel that was constructed
       using a backend specific interoperability function or to invoke a device
       built-in kernel.  Attempting to use this function to invoke other kernels
-      results in undefined behavior.  The precise semantics of this function
-      are defined by each SYCL backend specification, but the intent is that
-      the kernel should execute exactly once.</p>
+      throws a synchronous <span class="code">exception</span> with the <span class="code">errc::invalid</span>
+      error code.  The precise semantics of this function are defined by each
+      SYCL backend specification, but the intent is that the kernel should
+      execute exactly once.</p>
 </div>
 <div class="paragraph">
 <p>This invocation function ignores any <span class="code">kernel_bundle</span> that was bound to
@@ -27895,9 +27894,10 @@ associated with the secondary queue (if specified).</p>
 <p>This function must only be used to invoke a kernel that was constructed
       using a backend specific interoperability function or to invoke a device
       built-in kernel.  Attempting to use this function to invoke other kernels
-      results in undefined behavior.  The precise semantics of this function
-      are defined by each SYCL backend specification, but the intent is that
-      the kernel should be invoked for the specified range of index values.</p>
+      throws a synchronous <span class="code">exception</span> with the <span class="code">errc::invalid</span>
+      error code.  The precise semantics of this function are defined by each
+      SYCL backend specification, but the intent is that the kernel should be
+      invoked for the specified range of index values.</p>
 </div>
 <div class="paragraph">
 <p>This invocation function ignores any <span class="code">kernel_bundle</span> that was bound to
@@ -27921,9 +27921,10 @@ associated with the secondary queue (if specified).</p>
 <p>This function must only be used to invoke a kernel that was constructed
       using a backend specific interoperability function or to invoke a device
       built-in kernel.  Attempting to use this function to invoke other kernels
-      results in undefined behavior.  The precise semantics of this function
-      are defined by each SYCL backend specification, but the intent is that
-      the kernel should be invoked for the specified <span class="code">ndrange</span>.</p>
+      throws a synchronous <span class="code">exception</span> with the <span class="code">errc::invalid</span>
+      error code.  The precise semantics of this function are defined by each
+      SYCL backend specification, but the intent is that the kernel should be
+      invoked for the specified <span class="code">ndRange</span>.</p>
 </div>
 <div class="paragraph">
 <p>This invocation function ignores any <span class="code">kernel_bundle</span> that was bound to
@@ -29103,9 +29104,10 @@ this same <a href="#command-group">command group</a>.</p>
 <div class="ulist">
 <ul>
 <li>
-<p>An <span class="code">exception</span> with the <span class="code">errc::invalid</span> error code if
-the <a href="#context">context</a> associated with the <a href="#handler">command group handler</a> via its associated
-<a href="#queue">queue</a> is different from the <a href="#context">context</a> associated with the
+<p>An <span class="code">exception</span> with the <span class="code">errc::invalid</span> error code if the
+<a href="#context">context</a> associated with the <a href="#handler">command group handler</a> via its associated primary
+<a href="#queue">queue</a> or the <a href="#context">context</a> associated with the secondary <a href="#queue">queue</a> (if
+provided) is different from the <a href="#context">context</a> associated with the
 <a href="#kernel-bundle">kernel bundle</a> specified by <span class="code">execBundle</span>.</p>
 </li>
 <li>
@@ -30613,6 +30615,11 @@ ahead-of-time compiler, or it may call the online compiler or linker to create
 the bundle&#8217;s device images in the requested state.  A bundle may also contain
 device images that represent a device&#8217;s built-in kernels.</p>
 </div>
+<div class="paragraph">
+<p>When <span class="code">get_kernel_bundle()</span> is used to obtain a kernel bundle in
+<span class="code">bundle_state::object</span> or <span class="code">bundle_state::executable</span>, any
+specialization constants in the bundle will have their default values.</p>
+</div>
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight nowrap"><code data-lang="sycl"><span class="k">template</span><span class="o">&lt;</span><span class="n">bundle_state</span> <span class="n">State</span><span class="p">&gt;</span>
@@ -30623,7 +30630,8 @@ device images that represent a device&#8217;s built-in kernels.</p>
 <p><em>Returns:</em> A kernel bundle in state <span class="code">State</span> which contains all of the
 <a href="#kernel">kernels</a> in the application which are compatible with at least one of
 the devices in <span class="code">devs</span>.  This does not include any device built-in kernels.
-The bundle&#8217;s set of associated devices is <span class="code">devs</span>.</p>
+The bundle&#8217;s set of associated devices is <span class="code">devs</span> (with any duplicate
+devices removed).</p>
 </div>
 <div class="paragraph">
 <p>Since the implementation may not represent all kernels in
@@ -30639,7 +30647,7 @@ the application&#8217;s kernels.</p>
 <li>
 <p>An <span class="code">exception</span> with the <span class="code">errc::invalid</span> error code if any of
 the devices in <span class="code">devs</span> is not in the list of devices associated with
-the context <span class="code">ctxt</span>.</p>
+the context <span class="code">ctxt</span> or if the <span class="code">devs</span> vector is empty.</p>
 </li>
 <li>
 <p>An <span class="code">exception</span> with the <span class="code">errc::invalid</span> error code if
@@ -30670,11 +30678,12 @@ online compile or link, and if the online compile or link fails.</p>
 <p><em>Returns:</em> A kernel bundle in state <span class="code">State</span> which contains all of the
 device images that are compatible with at least one of the devices in
 <span class="code">devs</span>, further filtered to contain only those device images that contain
-kernels with the given identifiers.  These identifiers may represent kernels
-that are defined in the application, device built-in kernels, or a mixture of
-the two.  Since the device images may group many kernels together, the returned
-bundle may contain additional kernels beyond those that are requested in
-<span class="code">kernelIds</span>.  The bundle&#8217;s set of associated devices is <span class="code">devs</span>.</p>
+at least one of the kernels with the given identifiers.  These identifiers may
+represent kernels that are defined in the application, device built-in kernels,
+or a mixture of the two.  Since the device images may group many kernels
+together, the returned bundle may contain additional kernels beyond those that
+are requested in <span class="code">kernelIds</span>.  The bundle&#8217;s set of associated devices is
+<span class="code">devs</span> (with duplicate devices removed).</p>
 </div>
 <div class="paragraph">
 <p>Since the implementation may not represent all kernels in
@@ -30690,12 +30699,13 @@ the kernels in <span class="code">kernelIds</span>.  The application can test fo
 <ul>
 <li>
 <p>An <span class="code">exception</span> with the <span class="code">errc::invalid</span> error code if any of
-the kernels are incompatible with all devices in <span class="code">devs</span>.</p>
+the kernels identified by <span class="code">kernelIds</span> are incompatible with all
+devices in <span class="code">devs</span>.</p>
 </li>
 <li>
 <p>An <span class="code">exception</span> with the <span class="code">errc::invalid</span> error code if any of
 the devices in <span class="code">devs</span> is not in the list of devices associated with
-the context <span class="code">ctxt</span>.</p>
+the context <span class="code">ctxt</span> or if the <span class="code">devs</span> vector is empty.</p>
 </li>
 <li>
 <p>An <span class="code">exception</span> with the <span class="code">errc::invalid</span> error code if
@@ -30733,12 +30743,14 @@ value is convertible to <span class="code">bool</span> and whose parameter is
 device image in the application of state <span class="code">State</span> which is compatible
 with at least one of the devices in <span class="code">devs</span>.  The function&#8217;s return value
 determines whether a device image is included in the new kernel bundle.  The
-<span class="code">Selector</span> is called only for device images that contain kernels defined
+<span class="code">selector</span> is called only for device images that contain kernels defined
 in the application, not for device images that contain device built-in kernels.</p>
 </div>
 <div class="paragraph">
 <p><em>Returns:</em> A kernel bundle in state <span class="code">State</span> which contains all of the
-device images for which the <span class="code">selector</span> returns <span class="code">true</span>.</p>
+device images for which the <span class="code">selector</span> returns <span class="code">true</span>.  The
+bundle&#8217;s set of associated devices is <span class="code">devs</span> (with duplicate devices
+removed).</p>
 </div>
 <div class="paragraph">
 <p><em>Throws:</em></p>
@@ -30748,7 +30760,7 @@ device images for which the <span class="code">selector</span> returns <span cla
 <li>
 <p>An <span class="code">exception</span> with the <span class="code">errc::invalid</span> error code if any of
 the devices in <span class="code">devs</span> is not in the list of devices associated with
-the context <span class="code">ctxt</span>.</p>
+the context <span class="code">ctxt</span> or if the <span class="code">devs</span> vector is empty.</p>
 </li>
 <li>
 <p>An <span class="code">exception</span> with the <span class="code">errc::invalid</span> error code if
@@ -30885,7 +30897,7 @@ represented in a device image of state <span class="code">State</span>.</p>
 <li>
 <p>An <span class="code">exception</span> with the <span class="code">errc::invalid</span> error code if any of
 the devices in <span class="code">devs</span> is not in the list of devices associated with
-the context <span class="code">ctxt</span>.</p>
+the context <span class="code">ctxt</span> or if the <span class="code">devs</span> vector is empty.</p>
 </li>
 </ul>
 </div>
@@ -30927,7 +30939,7 @@ of the devices in <span class="code">devs</span>.</p>
 <li>
 <p>An <span class="code">exception</span> with the <span class="code">errc::invalid</span> error code if any of
 the devices in <span class="code">devs</span> is not in the list of devices associated with
-the context <span class="code">ctxt</span>.</p>
+the context <span class="code">ctxt</span> or if the <span class="code">devs</span> vector is empty.</p>
 </li>
 </ul>
 </div>
@@ -30987,10 +30999,24 @@ formed, and the implementation must issue a diagnostic in this case.</p>
 <div class="paragraph">
 <p>The following free functions allow an application to test whether a particular
 kernel is compatible with a device.  A kernel that is defined in the
-application is compatible with a device unless it uses optional features which
-are not supported on the device, as described in
-<a href="#sec:optional-kernel-features">Section 5.7</a>.  A device built-in kernel is only compatible
-with the device for which it is built-in.</p>
+application is compatible with a device unless:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>It uses optional features which are not supported on the device, as described
+in <a href="#sec:optional-kernel-features">Section 5.7</a>; or</p>
+</li>
+<li>
+<p>It is decorated with a <span class="code">[[sycl::requires()]]</span> C&#43;&#43; attribute that
+lists an aspect that is not supported by the device, as described in
+<a href="#sec:kernel.attributes">Section 5.8.1</a>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>A device built-in kernel is only compatible with the device for which it is
+built-in.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -31038,8 +31064,22 @@ creates a new bundle from the result.</p>
 </div>
 </div>
 <div class="paragraph">
-<p><em>Returns:</em> A new kernel bundle that represents the union of all the device
-images in the input <span class="code">bundles</span> with duplicates removed.</p>
+<p><em>Returns:</em> A new kernel bundle that contains a copy of all the device images in
+the input <span class="code">bundles</span> with duplicates removed.  The new bundle has the same
+associated context and the same set of associated devices as those in
+<span class="code">bundles</span>.</p>
+</div>
+<div class="paragraph">
+<p><em>Throws:</em></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>An <span class="code">exception</span> with the <span class="code">errc::invalid</span> error code if the
+bundles in <span class="code">bundles</span> do not all have the same associated context
+or do not all have the same set of associated devices.</p>
+</li>
+</ul>
 </div>
 </div>
 <div class="sect3">
@@ -31082,7 +31122,8 @@ are not compiled and not represented in the new kernel bundle.</p>
 </div>
 <div class="paragraph">
 <p>The new bundle has the same associated context as <span class="code">inputBundle</span>, and the
-new bundle&#8217;s set of associated devices is <span class="code">devs</span>.</p>
+new bundle&#8217;s set of associated devices is <span class="code">devs</span> (with duplicate devices
+removed).</p>
 </div>
 <div class="paragraph">
 <p><em>Returns:</em> The new kernel bundle.</p>
@@ -31095,7 +31136,8 @@ new bundle&#8217;s set of associated devices is <span class="code">devs</span>.<
 <li>
 <p>An <span class="code">exception</span> with the <span class="code">errc::invalid</span> error code if any of
 the devices in <span class="code">devs</span> are not in the set of associated devices for
-<span class="code">inputBundle</span> (as defined by <span class="code">kernel_bundle::get_devices()</span>).</p>
+<span class="code">inputBundle</span> (as defined by <span class="code">kernel_bundle::get_devices()</span>) or
+if the <span class="code">devs</span> vector is empty.</p>
 </li>
 <li>
 <p>An <span class="code">exception</span> with the <span class="code">errc::build</span> error code if the online
@@ -31125,7 +31167,7 @@ represented in the new bundle.</p>
 <div class="paragraph">
 <p>The new bundle has the same associated context as those in
 <span class="code">objectBundles</span>, and the new bundle&#8217;s set of associated devices is
-<span class="code">devs</span>.</p>
+<span class="code">devs</span> (with duplicate devices removed).</p>
 </div>
 <div class="paragraph">
 <p><em>Returns:</em> The new kernel bundle.</p>
@@ -31144,7 +31186,8 @@ context.</p>
 <p>An <span class="code">exception</span> with the <span class="code">errc::invalid</span> error code if any of
 the devices in <span class="code">devs</span> are not in the set of associated devices for
 any of the bundles in <span class="code">objectBundles</span> (as defined by
-<span class="code">kernel_bundle::get_devices()</span>).</p>
+<span class="code">kernel_bundle::get_devices()</span>) or if the <span class="code">devs</span> vector is
+empty.</p>
 </li>
 <li>
 <p>An <span class="code">exception</span> with the <span class="code">errc::build</span> error code if the online
@@ -31174,7 +31217,8 @@ the new bundle.</p>
 </div>
 <div class="paragraph">
 <p>The new bundle has the same associated context as <span class="code">inputBundle</span>, and the
-new bundle&#8217;s set of associated devices is <span class="code">devs</span>.</p>
+new bundle&#8217;s set of associated devices is <span class="code">devs</span> (with duplicate devices
+removed).</p>
 </div>
 <div class="paragraph">
 <p><em>Returns:</em> The new kernel bundle.</p>
@@ -31187,7 +31231,8 @@ new bundle&#8217;s set of associated devices is <span class="code">devs</span>.<
 <li>
 <p>An <span class="code">exception</span> with the <span class="code">errc::invalid</span> error code if any of
 the devices in <span class="code">devs</span> are not in the set of associated devices for
-<span class="code">inputBundle</span> (as defined by <span class="code">kernel_bundle::get_devices()</span>).</p>
+<span class="code">inputBundle</span> (as defined by <span class="code">kernel_bundle::get_devices()</span>) or
+if the <span class="code">devs</span> vector is empty.</p>
 </li>
 <li>
 <p>An <span class="code">exception</span> with the <span class="code">errc::build</span> error code if the online
@@ -31767,9 +31812,8 @@ the <a href="#backend">SYCL backend</a> that corresponds with <span class="code"
 <div class="paragraph">
 <p>A <a href="#kernel">kernel</a> can be queried for information using the <span class="code">get_info()</span>
 member function, specifying one of the info parameters in <span class="code">info::kernel</span>.
-Every kernel must produce a valid value for each info parameter.  All info
-parameters in <span class="code">info::kernel</span> are specified in <a href="#table.kernel.info">Table 132</a> and
-the synopsis for <span class="code">info::kernel</span> is described in
+All info parameters in <span class="code">info::kernel</span> are specified in
+<a href="#table.kernel.info">Table 132</a> and the synopsis for <span class="code">info::kernel</span> is described in
 <a href="#appendix.kernel.descriptors">Section A.5</a>.</p>
 </div>
 <table id="table.kernel.info" class="tableblock frame-all grid-all stretch">
@@ -31795,11 +31839,15 @@ the synopsis for <span class="code">info::kernel</span> is described in
 </div></div></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="code">uint32_t</span></p></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>This descriptor is only meaningful when used to query a kernel that
-      resides in a kernel bundle that was constructed using a backend specific
-      interoperability function.  Attempting to use this query for other
-      kernels returns an unspecified value.  The semantics of this descriptor
-      are defined by each SYCL backend specification.</p>
+<p>This descriptor may only be used to query a kernel that resides in a
+      kernel bundle that was constructed using a backend specific
+      interoperability function or to query a device built-in kernel, and the
+      semantics of this descriptor are defined by each SYCL backend
+      specification.</p>
+</div>
+<div class="paragraph">
+<p>Attempting to use this descriptor for other kernels throws an <span class="code">exception</span>
+with the <span class="code">errc::invalid</span> error code.</p>
 </div></div></td>
 </tr>
 <tr>
@@ -31818,9 +31866,8 @@ the synopsis for <span class="code">info::kernel</span> is described in
 </table>
 <div class="paragraph">
 <p>A <a href="#kernel">kernel</a> can also be queried for device specific information using the
-<span class="code">get_info()</span> member function, specifying one of the info
-parameters in <span class="code">info::kernel_device_specific</span>.  Every kernel must produce
-a valid value for each info parameter.  All info parameters in
+<span class="code">get_info()</span> member function, specifying one of the info parameters in
+<span class="code">info::kernel_device_specific</span>.  All info parameters in
 <span class="code">info::kernel_device_specific</span> are specified in
 <a href="#table.kernel.devicespecificinfo">Table 133</a>.  The synopsis for
 <span class="code">info::kernel_device_specific</span> is described in
@@ -31849,8 +31896,15 @@ a valid value for each info parameter.  All info parameters in
 </div></div></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="code">range&lt;3&gt;</span></p></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>Returns the maximum global work size.  Only valid if device type is
-      <span class="code">device_type::custom</span> or the kernel is a built-in kernel.</p>
+<p>This descriptor may only be used if the device type is
+      <span class="code">device_type::custom</span> or if the kernel is a built-in kernel.  The
+      exact semantics of this descriptor are defined by each SYCL backend
+      specification, but the intent is to return the kernel&#8217;s maximum global
+      work size.</p>
+</div>
+<div class="paragraph">
+<p>Attempting to use this descriptor for other devices or kernels throws an
+<span class="code">exception</span> with the <span class="code">errc::invalid</span> error code.</p>
 </div></div></td>
 </tr>
 <tr>
@@ -33097,6 +33151,8 @@ checking the standard error code.</p>
 79
 80
 81
+82
+83
 </pre></td><td class="code"><pre><span class="k">namespace</span> <span class="gh">sycl</span> <span class="p">{</span>
 
 <span class="k">using</span> <span class="kr">async_handler</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="gh">sycl</span><span class="o">::</span><span class="kr">exception_list</span><span class="p">)</span><span class="o">&gt;</span><span class="p">;</span>
@@ -33119,6 +33175,8 @@ checking the standard error code.</p>
 
     <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">error_code</span><span class="o">&amp;</span> <span class="n">code</span><span class="p">()</span> <span class="k">const</span> <span class="k">noexcept</span><span class="p">;</span>
     <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">error_category</span><span class="o">&amp;</span> <span class="n">category</span><span class="p">()</span> <span class="k">const</span> <span class="k">noexcept</span><span class="p">;</span>
+
+    <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">what</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
 
     <span class="kt">bool</span> <span class="n">has_context</span><span class="p">()</span> <span class="k">const</span> <span class="k">noexcept</span><span class="p">;</span>
     <span class="kr">context</span> <span class="fm">get_context</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
@@ -33369,7 +33427,7 @@ inheriting from <span class="code">std::true_type</span> for each <span class="c
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="sycl"><span class="kt">bool</span> <span class="n">has_context</span><span class="p">()</span> <span class="k">const</span></code></pre>
+<pre class="rouge highlight"><code data-lang="sycl"><span class="kt">bool</span> <span class="n">has_context</span><span class="p">()</span> <span class="k">const</span> <span class="k">noexcept</span></code></pre>
 </div>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
@@ -33614,6 +33672,18 @@ inheriting from <span class="code">std::true_type</span> for each <span class="c
 </tr>
 </thead>
 <tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="sycl"><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">error_category</span><span class="o">&amp;</span> <span class="n">sycl_category</span><span class="p">()</span> <span class="k">noexcept</span><span class="p">;</span></code></pre>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>Obtains a reference to the static error category object for SYCL errors.
+      This object overrides the virtual function <span class="code">error_category()</span> to
+      return a pointer to the string <span class="code">"sycl"</span>.</p>
+</div></div></td>
+</tr>
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="listingblock">
 <div class="content">
@@ -43745,6 +43815,21 @@ following aspects are those that correspond to optional kernel features:</p>
 </ul>
 </div>
 <div class="paragraph">
+<p>In addition, the following C&#43;&#43; attributes from <a href="#sec:kernel.attributes">Section 5.8.1</a> also
+correspond to optional kernel features because they force the kernel to be
+compiled in a way that might not run on all devices:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><span class="code">reqd_work_group_size()</span></p>
+</li>
+<li>
+<p><span class="code">reqd_sub_group_size()</span></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
 <p>In order to guarantee source code portability of SYCL applications that use
 optional kernel features, all SYCL implementations must be able to compile
 device code that uses these optional features regardless of whether the
@@ -43869,7 +43954,7 @@ compiled for the host, it has no effect when the function is compiled for the
 host.</p>
 </div>
 <div class="sect3">
-<h4 id="_kernel_attributes"><a class="anchor" href="#_kernel_attributes"></a>5.8.1. Kernel attributes</h4>
+<h4 id="sec:kernel.attributes"><a class="anchor" href="#sec:kernel.attributes"></a>5.8.1. Kernel attributes</h4>
 <div class="paragraph">
 <p>The attributes in <a href="#table.kernel.attributes">Table 180</a> are applied to the function-type
 of kernel function declarations.  The example below demonstrates this syntax
@@ -43939,9 +44024,13 @@ using the <span class="code">[[sycl::reqd_work_group_size(16)]]</span> attribute
       the work-group used to invoke the kernel.</p>
 </div>
 <div class="paragraph">
-<p>SYCL device compilers should give a compilation error if the required
-work-group size is unsupported.  If the kernel is submitted for execution using
-an incompatible work-group size, the SYCL runtime must throw an
+<p>Each device may have limitations on the work group sizes that it supports.  If
+a kernel is decorated with this attribute and then submitted to a device that
+does not support the work group size, the implementation must throw a
+synchronous <span class="code">exception</span> with the <span class="code">errc::kernel_not_supported</span> error
+code.  If the kernel is submitted to a device that does support the work group
+size, but the application provides an <span class="code">nd_range</span> that does not match the
+size from the attribute, then the implementation must throw a synchronous
 <span class="code">exception</span> with the <span class="code">errc::nd_range</span> error code.</p>
 </div></div></td>
 </tr>
@@ -43990,17 +44079,19 @@ a future version of the specification and is not recommended for use in new code
       expression.</p>
 </div>
 <div class="paragraph">
-<p>SYCL device compilers should give a compilation error if the required sub-group
-size is unsupported by the device or incompatible with any language feature used
-by the kernel.  The set of valid sub-group sizes for a kernel can be queried as
-described in <a href="#table.device.info">Table 25</a> and
-<a href="#table.kernel.devicespecificinfo">Table 133</a>.</p>
+<p>Each device supports only certain sub-group sizes as defined by
+<span class="code">info::device::sub_group_sizes</span>.  In addition, some device features may
+be incompatible with certain sub-group sizes.  If a kernel is decorated with
+this attribute and then submitted to a device that does not support the
+sub-group size or if the kernel uses a feature that the device does not support
+with this sub-group size, the implementation must throw a synchronous
+<span class="code">exception</span> with the <span class="code">errc::kernel_not_supported</span> error code.</p>
 </div></div></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="sycl"><span class="gh">sycl</span><span class="o">::</span><span class="n">requires</span><span class="p">(</span><span class="fm">has</span><span class="p">(</span><span class="kr">aspect</span><span class="p">,</span> <span class="p">...))</span></code></pre>
+<pre class="rouge highlight"><code data-lang="sycl"><span class="n">requires</span><span class="p">(</span><span class="fm">has</span><span class="p">(</span><span class="kr">aspect</span><span class="p">,</span> <span class="p">...))</span></code></pre>
 </div>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
@@ -44092,7 +44183,7 @@ formed and the compiler must issue a diagnostic.</p>
 
 <span class="c1">// Using "sycl::requires()" does not provide any guarantee that the device</span>
 <span class="c1">// actually supports the required features.  Therefore, the host code should</span>
-<span class="c1">// still check the devices aspects before submitting the kernel.</span>
+<span class="c1">// still check the device's aspects before submitting the kernel.</span>
 <span class="k">if</span> <span class="p">(</span><span class="n">myQueue</span><span class="p">.</span><span class="fm">get_device</span><span class="p">().</span><span class="fm">has</span><span class="p">(</span><span class="kr">aspect</span><span class="o">::</span><span class="n">fp16</span><span class="p">))</span> <span class="p">{</span>
   <span class="n">myQueue</span><span class="p">.</span><span class="fm">submit</span><span class="p">([</span><span class="o">&amp;</span><span class="p">](</span><span class="kr">handler</span> <span class="o">&amp;</span><span class="n">h</span><span class="p">)</span> <span class="p">{</span>
     <span class="n">h</span><span class="p">.</span><span class="fm">parallel_for</span><span class="p">(</span><span class="kr">range</span><span class="p">{</span><span class="mi">16</span><span class="p">},</span> <span class="n">KernelFunctor</span><span class="p">{});</span>
@@ -44124,7 +44215,7 @@ of a non-kernel device function.</p>
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="sycl"><span class="gh">sycl</span><span class="o">::</span><span class="n">requires</span><span class="p">(</span><span class="fm">has</span><span class="p">(</span><span class="kr">aspect</span><span class="p">,</span> <span class="p">...))</span></code></pre>
+<pre class="rouge highlight"><code data-lang="sycl"><span class="n">requires</span><span class="p">(</span><span class="fm">has</span><span class="p">(</span><span class="kr">aspect</span><span class="p">,</span> <span class="p">...))</span></code></pre>
 </div>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
@@ -45764,13 +45855,13 @@ OpenCL C language, in addition to supporting SYCL kernels written in C&#43;&#43;
 <p><a href="#sycl-runtime">SYCL runtime</a> classes which encapsulate an OpenCL opaque type such as
 SYCL <span class="code">context</span> or SYCL <span class="code">queue</span> must provide an
 interoperability constructor taking an instance of the OpenCL opaque type.
-These constructors must retain that instance to increase the reference count
-of the OpenCL resource.</p>
-</div>
-<div class="paragraph">
-<p>The destructor for the <a href="#sycl-runtime">SYCL runtime</a> classes which encapsulate an
-OpenCL opaque type must release that instance to decrease the reference
-count of the OpenCL resource.</p>
+When the OpenCL object supports reference counting, these constructors must
+retain that instance to increase the reference count of the OpenCL resource.
+Likewise, the destructor for the <a href="#sycl-runtime">SYCL runtime</a> classes which encapsulate a
+reference counted OpenCL opaque type must release that instance to decrease the
+reference count of the OpenCL resource.  Since the OpenCL <span class="code">platform_id</span>
+is not reference counted, the encapsulating SYCL <span class="code">platform</span> class neither
+retains nor releases this OpenCL resource.</p>
 </div>
 <div class="paragraph">
 <p>Note that an instance of a <a href="#sycl-runtime">SYCL runtime</a> class which encapsulates an
@@ -45833,6 +45924,22 @@ to their OpenCL native type in the SYCL application.</p>
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="listingblock">
 <div class="content">
+<pre class="rouge highlight"><code data-lang="sycl"><span class="kr">platform</span></code></pre>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><span class="code">cl_platform_id</span></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><span class="code">cl_platform_id</span></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>A SYCL platform object encapsulates an OpenCL platform ID.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="listingblock">
+<div class="content">
 <pre class="rouge highlight"><code data-lang="sycl"><span class="kr">device</span></code></pre>
 </div>
 </div></div></td>
@@ -45843,7 +45950,7 @@ to their OpenCL native type in the SYCL application.</p>
 <p><span class="code">cl_device_id</span></p>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
-<p>A SYCL device object encapsulates an OpenCL device object.</p>
+<p>A SYCL device object encapsulates an OpenCL device ID.</p>
 </div></div></td>
 </tr>
 <tr>
@@ -45860,6 +45967,22 @@ to their OpenCL native type in the SYCL application.</p>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
 <p>A SYCL context object encapsulates an OpenCL context object.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="listingblock">
+<div class="content">
+<pre class="rouge highlight"><code data-lang="sycl"><span class="kr">queue</span></code></pre>
+</div>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><span class="code">cl_command_queue</span></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p><span class="code">cl_command_queue</span></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
+<p>A SYCL queue object encapsulates an OpenCL queue object.</p>
 </div></div></td>
 </tr>
 <tr>
@@ -46036,11 +46159,16 @@ the interoperability aliases defined in <a href="#table.types.aliases">Table 188
 <div class="sect2">
 <h3 id="_programming_interface"><a class="anchor" href="#_programming_interface"></a>C.7. Programming interface</h3>
 <div class="paragraph">
-<p>The following section describes the OpenCL-specific API.
-All free functions are available in the <span class="code">sycl::opencl</span> namespace.</p>
+<p>The following section describes the OpenCL-specific API.</p>
 </div>
 <div class="sect3">
 <h4 id="_construct_sycl_objects_from_opencl_ones"><a class="anchor" href="#_construct_sycl_objects_from_opencl_ones"></a>C.7.1. Construct SYCL objects from OpenCL ones</h4>
+<div class="paragraph">
+<p>The OpenCL backend provides the following specializations of the
+<span class="code">make_{sycl_class}</span> template functions which are defined in
+<a href="#sec:backend-interoperability-make">Section 4.5.1.3</a>.  These functions are in the
+<span class="code">sycl</span> namespace.</p>
+</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 40%;">
@@ -46068,8 +46196,8 @@ All free functions are available in the <span class="code">sycl::opencl</span> n
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="sycl"><span class="gh">sycl</span><span class="o">::</span><span class="kr">event</span> <span class="fm">make_event</span><span class="p">(</span><span class="k">const</span> <span class="nx">cl_event</span> <span class="o">&amp;</span><span class="n">clEvent</span><span class="p">,</span>
-    <span class="k">const</span> <span class="gh">sycl</span><span class="o">::</span><span class="kr">context</span> <span class="o">&amp;</span><span class="n">syclContext</span><span class="p">)</span></code></pre>
+<pre class="rouge highlight"><code data-lang="sycl"><span class="kr">event</span> <span class="fm">make_event</span><span class="p">(</span><span class="k">const</span> <span class="nx">cl_event</span> <span class="o">&amp;</span><span class="n">clEvent</span><span class="p">,</span>
+    <span class="k">const</span> <span class="kr">context</span> <span class="o">&amp;</span><span class="n">syclContext</span><span class="p">)</span></code></pre>
 </div>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
@@ -46079,7 +46207,7 @@ All free functions are available in the <span class="code">sycl::opencl</span> n
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="sycl"><span class="gh">sycl</span><span class="o">::</span><span class="kr">device</span> <span class="fm">make_device</span><span class="p">(</span>
+<pre class="rouge highlight"><code data-lang="sycl"><span class="kr">device</span> <span class="fm">make_device</span><span class="p">(</span>
     <span class="k">const</span> <span class="nx">cl_device_id</span> <span class="o">&amp;</span><span class="n">clDeviceId</span><span class="p">)</span></code></pre>
 </div>
 </div></div></td>
@@ -46090,7 +46218,7 @@ All free functions are available in the <span class="code">sycl::opencl</span> n
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="sycl"><span class="gh">sycl</span><span class="o">::</span><span class="kr">platform</span> <span class="fm">make_platform</span><span class="p">(</span>
+<pre class="rouge highlight"><code data-lang="sycl"><span class="kr">platform</span> <span class="fm">make_platform</span><span class="p">(</span>
     <span class="k">const</span> <span class="nx">cl_platform_id</span> <span class="o">&amp;</span><span class="n">clPlatformId</span><span class="p">)</span></code></pre>
 </div>
 </div></div></td>
@@ -46101,10 +46229,10 @@ All free functions are available in the <span class="code">sycl::opencl</span> n
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="listingblock">
 <div class="content">
-<pre class="rouge highlight"><code data-lang="sycl"><span class="gh">sycl</span><span class="o">::</span><span class="kr">queue</span> <span class="fm">make_queue</span><span class="p">(</span>
+<pre class="rouge highlight"><code data-lang="sycl"><span class="kr">queue</span> <span class="fm">make_queue</span><span class="p">(</span>
     <span class="k">const</span> <span class="nx">cl_command_queue</span> <span class="o">&amp;</span><span class="n">clQueue</span><span class="p">,</span>
-    <span class="k">const</span> <span class="gh">sycl</span><span class="o">::</span><span class="kr">context</span> <span class="o">&amp;</span><span class="n">syclContext</span><span class="p">,</span>
-    <span class="k">const</span> <span class="gh">sycl</span><span class="o">::</span><span class="kr">async_handler</span> <span class="o">&amp;</span><span class="n">asyncHandler</span> <span class="o">=</span> <span class="p">{})</span></code></pre>
+    <span class="k">const</span> <span class="kr">context</span> <span class="o">&amp;</span><span class="n">syclContext</span><span class="p">,</span>
+    <span class="k">const</span> <span class="kr">async_handler</span> <span class="o">&amp;</span><span class="n">asyncHandler</span> <span class="o">=</span> <span class="p">{})</span></code></pre>
 </div>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
@@ -46119,10 +46247,10 @@ All free functions are available in the <span class="code">sycl::opencl</span> n
 <div class="content">
 <pre class="rouge highlight"><code data-lang="sycl"><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">,</span> <span class="kt">int</span> <span class="n">dimensions</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
           <span class="k">typename</span> <span class="nc">AllocatorT</span> <span class="o">=</span> <span class="kr">buffer_allocator</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">remove_const_t</span><span class="o">&lt;</span><span class="n">T</span><span class="p">&gt;</span><span class="o">&gt;&gt;</span>
-<span class="gh">sycl</span><span class="o">::</span><span class="kr">buffer</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">,</span> <span class="n">AllocatorT</span><span class="o">&gt;</span> <span class="fm">make_buffer</span><span class="p">(</span>
+<span class="kr">buffer</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">,</span> <span class="n">AllocatorT</span><span class="o">&gt;</span> <span class="fm">make_buffer</span><span class="p">(</span>
     <span class="k">const</span> <span class="nx">cl_mem</span> <span class="o">&amp;</span><span class="n">clMemObject</span><span class="p">,</span>
-    <span class="k">const</span> <span class="gh">sycl</span><span class="o">::</span><span class="kr">context</span> <span class="o">&amp;</span><span class="n">syclContext</span><span class="p">,</span>
-    <span class="gh">sycl</span><span class="o">::</span><span class="kr">event</span> <span class="n">availableEvent</span><span class="p">)</span></code></pre>
+    <span class="k">const</span> <span class="kr">context</span> <span class="o">&amp;</span><span class="n">syclContext</span><span class="p">,</span>
+    <span class="kr">event</span> <span class="n">availableEvent</span><span class="p">)</span></code></pre>
 </div>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
@@ -46139,9 +46267,9 @@ The SYCL <span class="code">context</span> parameter <span class="code">syclCont
 <div class="content">
 <pre class="rouge highlight"><code data-lang="sycl"><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">,</span> <span class="kt">int</span> <span class="n">dimensions</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
           <span class="k">typename</span> <span class="nc">AllocatorT</span> <span class="o">=</span> <span class="kr">buffer_allocator</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">remove_const_t</span><span class="o">&lt;</span><span class="n">T</span><span class="p">&gt;</span><span class="o">&gt;&gt;</span>
-<span class="gh">sycl</span><span class="o">::</span><span class="kr">buffer</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">,</span> <span class="n">AllocatorT</span><span class="o">&gt;</span> <span class="fm">make_buffer</span><span class="p">(</span>
+<span class="kr">buffer</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">,</span> <span class="n">AllocatorT</span><span class="o">&gt;</span> <span class="fm">make_buffer</span><span class="p">(</span>
     <span class="k">const</span> <span class="nx">cl_mem</span> <span class="o">&amp;</span><span class="n">clMemObject</span><span class="p">,</span>
-    <span class="k">const</span> <span class="gh">sycl</span><span class="o">::</span><span class="kr">context</span> <span class="o">&amp;</span><span class="n">syclContext</span><span class="p">)</span></code></pre>
+    <span class="k">const</span> <span class="kr">context</span> <span class="o">&amp;</span><span class="n">syclContext</span><span class="p">)</span></code></pre>
 </div>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
@@ -46155,10 +46283,11 @@ The SYCL <span class="code">context</span> parameter <span class="code">syclCont
 <td class="tableblock halign-left valign-top"><div class="content"><div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="sycl"><span class="k">template</span> <span class="o">&lt;</span><span class="kt">int</span> <span class="n">dimensions</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-          <span class="k">typename</span> <span class="nc">AllocatorT</span> <span class="o">=</span> <span class="gh">sycl</span><span class="o">::</span><span class="kr">image_allocator</span><span class="p">&gt;</span>
-<span class="gh">sycl</span><span class="o">::</span><span class="kr">sampled_image</span><span class="o">&lt;</span><span class="n">dimensions</span><span class="p">,</span> <span class="n">AllocatorT</span><span class="o">&gt;</span> <span class="fm">make_sampled_image</span><span class="p">(</span>
+          <span class="k">typename</span> <span class="nc">AllocatorT</span> <span class="o">=</span> <span class="kr">image_allocator</span><span class="p">&gt;</span>
+<span class="kr">sampled_image</span><span class="o">&lt;</span><span class="n">dimensions</span><span class="p">,</span> <span class="n">AllocatorT</span><span class="o">&gt;</span> <span class="fm">make_sampled_image</span><span class="p">(</span>
     <span class="k">const</span> <span class="nx">cl_mem</span> <span class="o">&amp;</span><span class="n">clMemObject</span><span class="p">,</span>
     <span class="k">const</span> <span class="kr">context</span> <span class="o">&amp;</span><span class="n">syclContext</span><span class="p">,</span>
+    <span class="kr">image_sampler</span> <span class="n">syclImageSampler</span><span class="p">,</span>
     <span class="kr">event</span> <span class="n">availableEvent</span><span class="p">)</span></code></pre>
 </div>
 </div></div></td>
@@ -46172,10 +46301,11 @@ The SYCL <span class="code">context</span> parameter <span class="code">syclCont
 <td class="tableblock halign-left valign-top"><div class="content"><div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="sycl"><span class="k">template</span> <span class="o">&lt;</span><span class="kt">int</span> <span class="n">dimensions</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-          <span class="k">typename</span> <span class="nc">AllocatorT</span> <span class="o">=</span> <span class="gh">sycl</span><span class="o">::</span><span class="kr">image_allocator</span><span class="p">&gt;</span>
-<span class="gh">sycl</span><span class="o">::</span><span class="kr">sampled_image</span><span class="o">&lt;</span><span class="n">dimensions</span><span class="p">,</span> <span class="n">AllocatorT</span><span class="o">&gt;</span> <span class="fm">make_sampled_image</span><span class="p">(</span>
+          <span class="k">typename</span> <span class="nc">AllocatorT</span> <span class="o">=</span> <span class="kr">image_allocator</span><span class="p">&gt;</span>
+<span class="kr">sampled_image</span><span class="o">&lt;</span><span class="n">dimensions</span><span class="p">,</span> <span class="n">AllocatorT</span><span class="o">&gt;</span> <span class="fm">make_sampled_image</span><span class="p">(</span>
     <span class="k">const</span> <span class="nx">cl_mem</span> <span class="o">&amp;</span><span class="n">clMemObject</span><span class="p">,</span>
-    <span class="k">const</span> <span class="kr">context</span> <span class="o">&amp;</span><span class="n">syclContext</span><span class="p">)</span></code></pre>
+    <span class="k">const</span> <span class="kr">context</span> <span class="o">&amp;</span><span class="n">syclContext</span><span class="p">,</span>
+    <span class="kr">image_sampler</span> <span class="n">syclImageSampler</span><span class="p">)</span></code></pre>
 </div>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
@@ -46187,11 +46317,10 @@ The SYCL <span class="code">context</span> parameter <span class="code">syclCont
 <td class="tableblock halign-left valign-top"><div class="content"><div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="sycl"><span class="k">template</span> <span class="o">&lt;</span><span class="kt">int</span> <span class="n">dimensions</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-          <span class="k">typename</span> <span class="nc">AllocatorT</span> <span class="o">=</span> <span class="gh">sycl</span><span class="o">::</span><span class="kr">image_allocator</span><span class="p">&gt;</span>
-<span class="gh">sycl</span><span class="o">::</span><span class="kr">unsampled_image</span><span class="o">&lt;</span><span class="n">dimensions</span><span class="p">,</span> <span class="n">AllocatorT</span><span class="o">&gt;</span> <span class="fm">make_unsampled_image</span><span class="p">(</span>
+          <span class="k">typename</span> <span class="nc">AllocatorT</span> <span class="o">=</span> <span class="kr">image_allocator</span><span class="p">&gt;</span>
+<span class="kr">unsampled_image</span><span class="o">&lt;</span><span class="n">dimensions</span><span class="p">,</span> <span class="n">AllocatorT</span><span class="o">&gt;</span> <span class="fm">make_unsampled_image</span><span class="p">(</span>
     <span class="k">const</span> <span class="nx">cl_mem</span> <span class="o">&amp;</span><span class="n">clMemObject</span><span class="p">,</span>
-    <span class="k">const</span> <span class="gh">sycl</span><span class="o">::</span><span class="kr">context</span> <span class="o">&amp;</span><span class="n">syclContext</span><span class="p">,</span>
-    <span class="gh">sycl</span><span class="o">::</span><span class="kr">image_sampler</span> <span class="n">syclImageSampler</span><span class="p">,</span>
+    <span class="k">const</span> <span class="kr">context</span> <span class="o">&amp;</span><span class="n">syclContext</span><span class="p">,</span>
     <span class="kr">event</span> <span class="n">availableEvent</span><span class="p">)</span></code></pre>
 </div>
 </div></div></td>
@@ -46205,11 +46334,10 @@ The SYCL <span class="code">context</span> parameter <span class="code">syclCont
 <td class="tableblock halign-left valign-top"><div class="content"><div class="listingblock">
 <div class="content">
 <pre class="rouge highlight"><code data-lang="sycl"><span class="k">template</span> <span class="o">&lt;</span><span class="kt">int</span> <span class="n">dimensions</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-          <span class="k">typename</span> <span class="nc">AllocatorT</span> <span class="o">=</span> <span class="gh">sycl</span><span class="o">::</span><span class="kr">image_allocator</span><span class="p">&gt;</span>
-<span class="gh">sycl</span><span class="o">::</span><span class="kr">unsampled_image</span><span class="o">&lt;</span><span class="n">dimensions</span><span class="p">,</span> <span class="n">AllocatorT</span><span class="o">&gt;</span> <span class="fm">make_unsampled_image</span><span class="p">(</span>
+          <span class="k">typename</span> <span class="nc">AllocatorT</span> <span class="o">=</span> <span class="kr">image_allocator</span><span class="p">&gt;</span>
+<span class="kr">unsampled_image</span><span class="o">&lt;</span><span class="n">dimensions</span><span class="p">,</span> <span class="n">AllocatorT</span><span class="o">&gt;</span> <span class="fm">make_unsampled_image</span><span class="p">(</span>
     <span class="k">const</span> <span class="nx">cl_mem</span> <span class="o">&amp;</span><span class="n">clMemObject</span><span class="p">,</span>
-    <span class="k">const</span> <span class="gh">sycl</span><span class="o">::</span><span class="kr">context</span> <span class="o">&amp;</span><span class="n">syclContext</span><span class="p">,</span>
-    <span class="gh">sycl</span><span class="o">::</span><span class="kr">image_sampler</span> <span class="n">syclImageSampler</span><span class="p">)</span></code></pre>
+    <span class="k">const</span> <span class="kr">context</span> <span class="o">&amp;</span><span class="n">syclContext</span><span class="p">)</span></code></pre>
 </div>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
@@ -46339,7 +46467,7 @@ through the following functions provided in the <span class="code">sycl::opencl<
 <div class="sect3">
 <h4 id="_reference_counting"><a class="anchor" href="#_reference_counting"></a>C.7.3. Reference counting</h4>
 <div class="paragraph">
-<p>All OpenCL objects are reference counted. The SYCL general programming model
+<p>Most OpenCL objects are reference counted. The SYCL general programming model
 doesn&#8217;t require that native objects are reference counted. However, for
 convenience, the following function is provided in the
 <span class="code">sycl::opencl</span> namespace.</p>
@@ -48333,7 +48461,7 @@ elements as part of a <a href="#work-group">work-group</a> executing on a comput
 </div>
 <div id="footer" style="max-width: 100%;">
 <div id="footer-text">
-Last updated 2021-02-09 03:21:31 UTC
+Last updated 2021-03-04 21:38:49 UTC
 </div>
 </div>
 
