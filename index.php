@@ -13,10 +13,10 @@ include_once("../../assets/static_pages/khr_page_top.php");
 
 <ul>
 <li>
-  SYCL 2020 Specification revision 11
+  SYCL 2020 Specification revision 12
   (<a href="specs/sycl-2020/html/sycl-2020.html">HTML</a>)
   (<a href="specs/sycl-2020/pdf/sycl-2020.pdf">PDF</a>)
-  (November 7, 2025) </li>
+  (August 6, 2026) </li>
 
   <ul>
   <li>

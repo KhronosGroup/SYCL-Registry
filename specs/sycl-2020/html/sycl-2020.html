@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 2.0.23">
+<meta name="generator" content="Asciidoctor 2.0.26">
 <meta name="author" content="The Khronos® SYCL™ Working Group">
-<title>SYCL™ 2020 Specification (revision 11)</title>
+<title>SYCL™ 2020 Specification (revision 12)</title>
 <style>
 /*! normalize.css v2.1.2 | MIT License | git.io/normalize */
 /* ========================================================================== HTML5 display definitions ========================================================================== */
@@ -815,13 +815,6 @@ p.tableblock.header { color: #6d6e71; }
 /* From https://github.com/KhronosGroup/Vulkan-Docs/pull/901 */
 a code { color: inherit; }
 
-/* Make VUID anchor handles*/
-li > p > a[id^="VUID-"] { visibility: hidden; position: absolute; z-index: 1001; width: 2.2ex; margin-left: -2.2ex; display: block; text-decoration: none !important; text-align: center; font-weight: normal; }
-li > p > a[id^="VUID-"]:before { content: "\00A7"; font-size: 1em; display: block; padding-top: 0em; background: #fff }
-li > p:hover > a[id^="VUID-"], li > p > a[id^="VUID-"]:hover { visibility: visible; }
-li > p > a[id^="VUID-"].link { color: black; text-decoration: none; } /* TODO: not quite sure what these two do */
-li > p > a[id^="VUID-"].link:hover { color: black; }
-
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <style>
@@ -859,7 +852,7 @@ pre.rouge .vm {
   color: #ffa500;
   font-weight: bold;
 }
-pre.rouge .c, pre.rouge .ch, pre.rouge .cd, pre.rouge .cp, pre.rouge .cpf, pre.rouge .cs {
+pre.rouge .c, pre.rouge .ch, pre.rouge .cd, pre.rouge .cs {
   color: #9acd32;
 }
 pre.rouge .cm {
@@ -867,6 +860,12 @@ pre.rouge .cm {
 }
 pre.rouge .c1 {
   color: #9acd32;
+}
+pre.rouge .cp {
+  color: #9a32cd;
+}
+pre.rouge .cpf {
+  color: #9a32cd;
 }
 pre.rouge, pre.rouge .w {
   background-color: #ffffff;
@@ -1048,11 +1047,11 @@ pre.rouge .gs {
 </head>
 <body class="book toc2 toc-left">
 <div id="header" style="max-width: 100%;">
-<h1>SYCL<sup>™</sup> 2020 Specification (revision 11)</h1>
+<h1>SYCL<sup>™</sup> 2020 Specification (revision 12)</h1>
 <div class="details">
 <span id="author" class="author">The Khronos<sup>®</sup> SYCL<sup>™</sup> Working Group</span><br>
-<span id="revdate">2025-11-07 12:31:27Z</span>
-<br><span id="revremark">commit 1e40b6649b251dff0079f2c0290409013d3bb2cb</span>
+<span id="revdate">2026-08-06 14:15:58Z</span>
+<br><span id="revremark">commit b3bcc5d5cc83217d14ebbb904e353c5a0d17f52b</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle"><span id="toc-top"></span>Table of Contents</div>
@@ -1791,7 +1790,7 @@ pre.rouge .gs {
 <div class="sectionbody">
 <div style="page-break-after: always;"></div>
 <div class="paragraph">
-<p>Copyright 2011-2025 The Khronos Group Inc.</p>
+<p>Copyright 2011-2026 The Khronos Group Inc.</p>
 </div>
 <div class="paragraph">
 <p>This Specification is protected by copyright laws and contains material
@@ -1955,6 +1954,9 @@ identification and belong to their respective owners.</p>
 <p>Kevin Harms, Argonne National Laboratory</p>
 </li>
 <li>
+<p>Michael Lance, Argonne National Laboratory</p>
+</li>
+<li>
 <p>Nevin Liber, Argonne National Laboratory</p>
 </li>
 <li>
@@ -1973,7 +1975,7 @@ identification and belong to their respective owners.</p>
 <p>Stuart Adams, Codeplay</p>
 </li>
 <li>
-<p>Verena Beckham, Codeplay</p>
+<p>Verena Beckham, Codeplay, Qualcomm</p>
 </li>
 <li>
 <p>Aidan Belton, Codeplay</p>
@@ -2354,39 +2356,41 @@ run in parallel on any device available.</p>
 34
 35
 36
+37
 </pre></td><td class="code"><pre><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
 #include</span> <span class="cpf">&lt;sycl/sycl.hpp&gt;</span><span class="cp">
-</span><span class="k">using</span> <span class="k">namespace</span> <span class="gh">sycl</span><span class="p">;</span>  <span class="c1">// (optional) avoids need for "sycl::" before SYCL names</span>
-
+#include</span> <span class="cpf">&lt;vector&gt;</span><span class="cp">
+</span>
 <span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-  <span class="kt">int</span> <span class="n">data</span><span class="p">[</span><span class="mi">1024</span><span class="p">];</span>  <span class="c1">// Allocate data to be worked on</span>
+  <span class="c1">// Declare number of work items</span>
+  <span class="k">constexpr</span> <span class="kt">size_t</span> <span class="n">N</span> <span class="o">=</span> <span class="mi">1024</span><span class="p">;</span>
 
-  <span class="c1">// Create a default queue to enqueue work to the default device</span>
-  <span class="kr">queue</span> <span class="n">myQueue</span><span class="p">;</span>
+  <span class="c1">// Allocate host memory to store the results</span>
+  <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">dataHost</span><span class="p">(</span><span class="n">N</span><span class="p">);</span>
 
-  <span class="c1">// By wrapping all the SYCL work in a {} block, we ensure</span>
-  <span class="c1">// all SYCL tasks must complete before exiting the block,</span>
-  <span class="c1">// because the destructor of resultBuf will wait</span>
-  <span class="p">{</span>
-    <span class="c1">// Wrap our data variable in a buffer</span>
-    <span class="kr">buffer</span> <span class="n">resultBuf</span><span class="p">{</span><span class="n">data</span><span class="p">,</span> <span class="p">{</span><span class="mi">1024</span><span class="p">}};</span>
+  <span class="c1">// Create an in order queue to enqueue work to the default device</span>
+  <span class="gh">sycl</span><span class="o">::</span><span class="kr">queue</span> <span class="n">myQueue</span><span class="p">{</span><span class="gh">sycl</span><span class="o">::</span><span class="gh">property</span><span class="o">::</span><span class="kr">queue</span><span class="o">::</span><span class="n">in_order</span><span class="p">()};</span>
 
-    <span class="c1">// Create a command group to issue commands to the queue</span>
-    <span class="n">myQueue</span><span class="p">.</span><span class="fm">submit</span><span class="p">([</span><span class="o">&amp;</span><span class="p">](</span><span class="kr">handler</span><span class="o">&amp;</span> <span class="n">cgh</span><span class="p">)</span> <span class="p">{</span>
-      <span class="c1">// Request write access to the buffer without initialization</span>
-      <span class="kr">accessor</span> <span class="n">writeResult</span><span class="p">{</span><span class="n">resultBuf</span><span class="p">,</span> <span class="n">cgh</span><span class="p">,</span> <span class="vm">write_only</span><span class="p">,</span> <span class="vm">no_init</span><span class="p">};</span>
+  <span class="c1">// Allocate device memory to be worked on</span>
+  <span class="kt">int</span> <span class="o">*</span><span class="n">dataDevice</span> <span class="o">=</span> <span class="gh">sycl</span><span class="o">::</span><span class="fm">malloc_device</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="n">myQueue</span><span class="p">);</span>
 
-      <span class="c1">// Enqueue a parallel_for task with 1024 work-items</span>
-      <span class="n">cgh</span><span class="p">.</span><span class="fm">parallel_for</span><span class="p">(</span><span class="mi">1024</span><span class="p">,</span> <span class="p">[</span><span class="o">=</span><span class="p">](</span><span class="kr">id</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span> <span class="n">idx</span><span class="p">)</span> <span class="p">{</span>
-        <span class="c1">// Initialize each buffer element with its own rank number starting at 0</span>
-        <span class="n">writeResult</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx</span><span class="p">;</span>
-      <span class="p">});</span>  <span class="c1">// End of the kernel function</span>
-    <span class="p">});</span>    <span class="c1">// End of our commands for this queue</span>
-  <span class="p">}</span>  <span class="c1">// End of scope, so we wait for work producing resultBuf to complete</span>
+  <span class="c1">// Enqueue a parallel_for task with 1024 work-items</span>
+  <span class="n">myQueue</span><span class="p">.</span><span class="fm">parallel_for</span><span class="p">(</span><span class="n">N</span><span class="p">,</span> <span class="p">[</span><span class="o">=</span><span class="p">](</span><span class="gh">sycl</span><span class="o">::</span><span class="kr">id</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span> <span class="n">idx</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Initialize each buffer element with its own rank number starting at 0</span>
+    <span class="n">dataDevice</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx</span><span class="p">;</span>
+  <span class="p">});</span> <span class="c1">// End of the kernel function</span>
+
+  <span class="c1">// Copy the results back to the host from the device</span>
+  <span class="n">myQueue</span><span class="p">.</span><span class="fm">copy</span><span class="p">(</span><span class="n">dataDevice</span><span class="p">,</span> <span class="n">dataHost</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span> <span class="n">N</span><span class="p">);</span>
+
+  <span class="n">myQueue</span><span class="p">.</span><span class="fm">wait</span><span class="p">();</span> <span class="c1">// Wait for the queue to finish executing all the tasks</span>
 
   <span class="c1">// Print result</span>
-  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">1024</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"data["</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="s">"] = "</span> <span class="o">&lt;&lt;</span> <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">N</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"dataHost["</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="s">"] = "</span> <span class="o">&lt;&lt;</span> <span class="n">dataHost</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+  <span class="c1">// Free device memory</span>
+  <span class="gh">sycl</span><span class="o">::</span><span class="fm">free</span><span class="p">(</span><span class="n">dataDevice</span><span class="p">,</span> <span class="n">myQueue</span><span class="p">);</span>
 
   <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>
@@ -2394,75 +2398,68 @@ run in parallel on any device available.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>At line 1, we <span class="code">#include</span> the SYCL header files, which provide all of
-the SYCL features that will be used.</p>
+<p>At line 2 we <span class="code">#include</span> the SYCL header files, which provide all of
+of the SYCL features that will be used.</p>
 </div>
 <div class="paragraph">
-<p>A SYCL application runs on a <a href="#sec:platformmodel">SYCL Platform</a>.
-The application is structured in three scopes which specify the different
-sections; <a href="#application-scope">application scope</a>, <a href="#command-group-scope">command group scope</a> and <a href="#kernel-scope">kernel scope</a>.
-The <a href="#kernel-scope">kernel scope</a> specifies a single kernel function that will be, or has
-been, compiled by a <a href="#device-compiler">device compiler</a> and executed on a <a href="#device">device</a>.
-In this example <a href="#kernel-scope">kernel scope</a> is defined by lines 25 to 26.
-The <a href="#command-group-scope">command group scope</a> specifies a unit of work which is comprised of a
-<a href="#sycl-kernel-function">SYCL kernel function</a> and <a href="#accessor">accessors</a>.
-In this example <a href="#command-group-scope">command group scope</a> is defined by lines 20 to 28.
-The <a href="#application-scope">application scope</a> specifies all other code outside of a
-<a href="#command-group-scope">command group scope</a>.
-These three scopes are used to control the application flow and the construction
-and lifetimes of the various objects used within SYCL, as explained in
-<a href="#sec:managing-object-lifetimes">Section 3.9.12</a>.</p>
+<p>At line 13 we instantiate a <a href="#queue">queue</a> with the <span class="code">in_order</span> property.
+A queue is bound to a <a href="#device">device</a>, if you do not specify a device with a selector
+function, the SYCL runtime will choose one automatically.
+A queue will execute commands submitted to it on it&#8217;s associated device.
+In our case commands will be executed in a first in first out (FIFO) fashion
+because of the <span class="code">in_order</span> property passed to our queue&#8217;s constructor.
+The commands submitted to <span class="code">myQueue</span> are executed asynchronously from the
+host code.</p>
 </div>
 <div class="paragraph">
-<p>A <a href="#sycl-kernel-function">SYCL kernel function</a> is the scoped block of code that will be compiled
-using a device compiler.
-This code may be defined by the body of a lambda expression or by the
-<span class="code">operator()</span> function of a function object.
-Each instance of the <a href="#sycl-kernel-function">SYCL kernel function</a> will be executed as a single,
-though not necessarily entirely independent, flow of execution and has to adhere
-to restrictions on what operations may be allowed to enable device compilers to
-safely compile it to a range of underlying devices.</p>
+<p>At line 16 we use <span class="code">malloc_device</span> to allocate memory on the <a href="#device">device</a>
+associated with our queue and store a unified shared memory (<a href="#usm">USM</a>) pointer to
+the memory in <span class="code">dataDevice</span>.
+This memory is only accessible on the device.</p>
 </div>
 <div class="paragraph">
-<p>The <span class="code">parallel_for</span> member function can be templated with a class.
-This class is used to manually name the kernel when desired, such as to avoid a
-compiler-generated name when debugging a kernel defined through a lambda, to
-provide a known name with which to apply build options to a kernel, or to ensure
-compatibility with multiple compiler-pass implementations.</p>
+<p>In lines 19 to 22, <span class="code">parallel_for</span> does three conceptual things:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>The <a href="#sycl-kernel-function">SYCL kernel function</a> (defined here as a lambda), passed as the
+second argument to <span class="code">parallel_for</span>, is compiled by a
+<a href="#device-compiler">device compiler</a> into a <a href="#kernel">kernel</a> that can be run on the <a href="#device">device</a>
+associated with <span class="code">myQueue</span>.</p>
+</li>
+<li>
+<p>A command that invokes the <a href="#kernel">kernel</a> on the <a href="#device">device</a> is submitted to
+<span class="code">myQueue</span>, and the <a href="#kernel">kernel</a> is executed asynchronously from the
+host.</p>
+</li>
+<li>
+<p>The command decomposes the range 0 to 1023 into <a href="#work-item">work-items</a>.
+For each <a href="#work-item">work-item</a> the <a href="#sycl-kernel-function">SYCL kernel function</a> is invoked once on the
+device, and these invocations may be executed in parallel.</p>
+</li>
+</ol>
 </div>
 <div class="paragraph">
-<p>The <span class="code">parallel_for</span> member function creates an instance of a <a href="#kernel">kernel</a>,
-which is the entity that will be enqueued within a command group.
-In the case of <span class="code">parallel_for</span> the <a href="#sycl-kernel-function">SYCL kernel function</a> will be
-executed over the given range from 0 to 1023.
-The different member functions to execute kernels can be found in
-<a href="#subsec:invokingkernels">Section 4.9.4.2</a>.</p>
+<p>The different <a href="#queue">queue</a> member functions used to invoke a
+<a href="#sycl-kernel-function">SYCL kernel function</a> can be found in <a href="#subsec:invokingkernels">Section 4.9.4.2</a>.</p>
 </div>
 <div class="paragraph">
-<p>A <a href="#command-group-scope">command group scope</a> is the syntactic scope wrapped by the construction of
-a <a href="#command-group-function-object">command group function object</a> as seen on line 19.
-The <a href="#command-group-function-object">command group function object</a> may invoke only a single
-<a href="#sycl-kernel-function">SYCL kernel function</a>, and it takes a parameter of type command group
-<span class="code">handler</span>, which is constructed by the runtime.</p>
+<p>At line 25 we use the <span class="code">copy</span> member function to submit a copy command to
+copy the results from the <a href="#device">device&#8217;s</a> memory back into host memory.</p>
 </div>
 <div class="paragraph">
-<p>All the requirements for a kernel to execute are defined in this
-<a href="#command-group-scope">command group scope</a>, as described in <a href="#sec:executionmodel">Section 3.7.1</a>.
-In this case the constructor used for <span class="code">myQueue</span> on line 9 is the default
-constructor, which allows the queue to select the best underlying device to
-execute on, leaving the decision up to the runtime.</p>
+<p>At line 27 we call <span class="code">wait</span> to block the host until all commands submitted
+to <span class="code">myQueue</span> (the <span class="code">parallel_for</span> and the <span class="code">copy</span>) have
+completed.</p>
 </div>
 <div class="paragraph">
-<p>In SYCL, data that is required within a <a href="#sycl-kernel-function">SYCL kernel function</a> must be
-contained within a <a href="#buffer">buffer</a>, <a href="#image">image</a>, or <a href="#usm">USM</a> allocation, as described in
-<a href="#sec:memory.model">Section 3.8</a>.
-We construct a buffer on line 16.
-Access to the <a href="#buffer">buffer</a> is controlled via an <a href="#accessor">accessor</a> which is constructed
-on line 21.
-The <a href="#buffer">buffer</a> is used to keep track of access to the data and the <a href="#accessor">accessor</a>
-is used to request access to the data on a queue, as well as to track the
-dependencies between <a href="#sycl-kernel-function">SYCL kernel function</a>.
-In this example the <a href="#accessor">accessor</a> is used to write to the data buffer on line 26.</p>
+<p>In lines 30 and 31 we print the results from the host memory, which now contains
+a copy of the device memory.</p>
+</div>
+<div class="paragraph">
+<p>At line 34 the device allocation <span class="code">dataDevice</span> is released with
+<span class="code">free</span>.</p>
 </div>
 </div>
 <div class="sect2">
@@ -3767,7 +3764,7 @@ values:</p>
 <ul>
 <li>
 <p><span class="code">sycl::memory_scope::work_item</span> The ordering constraint applies only
-to the calling work-item;</p>
+to the calling work-item (this scope is only valid for barriers and fences);</p>
 </li>
 <li>
 <p><span class="code">sycl::memory_scope::sub_group</span> The ordering constraint applies only
@@ -4526,8 +4523,9 @@ When this happens, the right-most term in the object&#8217;s range varies fastes
 the linearization.</p>
 </div>
 <div class="paragraph">
-<p>A three-dimensional element <span class="code">id{id0, id1, id2}</span> within a three-dimensional
-object of range <span class="code">range{r0, r1, r2}</span> has a linear position defined by:</p>
+<p>A three-dimensional element <span class="code">id{id0, id1, id2}</span> within a
+three-dimensional object of range <span class="code">range{r0, r1, r2}</span> has a linear
+position defined by:</p>
 </div>
 <div class="stemblock">
 <div class="content">
@@ -7112,6 +7110,11 @@ exceptions, as described in <a href="#error-handling">Section 4.13</a>.</p>
   <span class="k">explicit</span> <span class="nf">context</span><span class="p">(</span><span class="k">const</span> <span class="kr">device</span><span class="o">&amp;</span> <span class="n">dev</span><span class="p">,</span> <span class="kr">async_handler</span> <span class="n">asyncHandler</span><span class="p">,</span>
                    <span class="k">const</span> <span class="kr">property_list</span><span class="o">&amp;</span> <span class="n">propList</span> <span class="o">=</span> <span class="p">{});</span>
 
+  <span class="k">explicit</span> <span class="nf">context</span><span class="p">(</span><span class="k">const</span> <span class="kr">platform</span><span class="o">&amp;</span> <span class="n">plt</span><span class="p">,</span> <span class="k">const</span> <span class="kr">property_list</span><span class="o">&amp;</span> <span class="n">propList</span> <span class="o">=</span> <span class="p">{});</span>
+
+  <span class="k">explicit</span> <span class="nf">context</span><span class="p">(</span><span class="k">const</span> <span class="kr">platform</span><span class="o">&amp;</span> <span class="n">plt</span><span class="p">,</span> <span class="kr">async_handler</span> <span class="n">asyncHandler</span><span class="p">,</span>
+                   <span class="k">const</span> <span class="kr">property_list</span><span class="o">&amp;</span> <span class="n">propList</span> <span class="o">=</span> <span class="p">{});</span>
+
   <span class="k">explicit</span> <span class="nf">context</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kr">device</span><span class="o">&gt;&amp;</span> <span class="n">deviceList</span><span class="p">,</span>
                    <span class="k">const</span> <span class="kr">property_list</span><span class="o">&amp;</span> <span class="n">propList</span> <span class="o">=</span> <span class="p">{});</span>
 
@@ -7139,47 +7142,117 @@ exceptions, as described in <a href="#error-handling">Section 4.13</a>.</p>
 </div>
 <div class="sect4">
 <h5 id="sec:context-ctors"><a class="anchor" href="#sec:context-ctors"></a>4.6.3.1. Constructors</h5>
+<div class="paragraph">
+<p>All context constructors take a parameter named <span class="code">propList</span> which allows
+the application to pass zero or more properties.
+These properties may specify additional effects of the constructor and may also
+specify exceptions that the constructor throws.
+See <a href="#sec:context-properties">Section 4.6.3.4</a> for the context properties that are defined by
+the <a href="#core-spec">core SYCL specification</a>.</p>
+</div>
+<hr>
 <div id="api:context-ctor" class="listingblock synopsis">
 <a href="#api:context-ctor"></a>
 <div class="title"><span class="apititle">Default constructor</span></div>
 <div class="content">
-<pre class="rouge highlight nowrap"><code data-lang="sycl"><span class="k">explicit</span> <span class="kr">context</span><span class="p">(</span><span class="kr">async_handler</span> <span class="n">asyncHandler</span> <span class="o">=</span> <span class="p">{})</span></code></pre>
+<pre class="rouge highlight nowrap"><code data-lang="sycl"><span class="k">explicit</span> <span class="kr">context</span><span class="p">(</span><span class="k">const</span> <span class="kr">property_list</span><span class="o">&amp;</span> <span class="n">propList</span> <span class="o">=</span> <span class="p">{})</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p><em>Effects:</em> Constructs a <span class="code">context</span> object using the
-<span class="code">default_selector_v</span> to determine the associated platform and devices.
-The associated platform is the platform which contains the device selected by
+<p><em>Effects:</em> Constructs a <span class="code">context</span> object using the device selected by
 <span class="code">default_selector_v</span>.
-The <a href="#device">devices</a> that are associated with the constructed context are
-implementation-defined but must contain the device that is selected by
-<span class="code">default_selector_v</span>.
-The constructed context uses the <span class="code">asyncHandler</span> parameter to handle
-exceptions.</p>
+The context&#8217;s platform is the platform that contains this device.
+The context contains the selected device.
+The context may also contain other devices from the same platform.
+Whether this happens is implementation defined.</p>
 </div>
 <hr>
-<div id="api:context-ctor-dev" class="listingblock synopsis">
-<a href="#api:context-ctor-dev"></a>
-<div class="title"><span class="apititle">Construct from device</span></div>
+<div id="api:context-ctor-async-handler" class="listingblock synopsis">
+<a href="#api:context-ctor-async-handler"></a>
+<div class="title"><span class="apititle">Constructor with async handler</span></div>
 <div class="content">
-<pre class="rouge highlight nowrap"><code data-lang="sycl"><span class="k">explicit</span> <span class="kr">context</span><span class="p">(</span><span class="k">const</span> <span class="kr">device</span><span class="o">&amp;</span> <span class="n">dev</span><span class="p">,</span> <span class="kr">async_handler</span> <span class="n">asyncHandler</span> <span class="o">=</span> <span class="p">{})</span></code></pre>
+<pre class="rouge highlight nowrap"><code data-lang="sycl"><span class="k">explicit</span> <span class="kr">context</span><span class="p">(</span><span class="kr">async_handler</span> <span class="n">asyncHandler</span><span class="p">,</span> <span class="k">const</span> <span class="kr">property_list</span><span class="o">&amp;</span> <span class="n">propList</span> <span class="o">=</span> <span class="p">{})</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p><em>Effects:</em> Constructs a <span class="code">context</span> object using the <span class="code">dev</span> parameter
-to determine the associated platform and device.
-The associated platform is the platform that contains <span class="code">dev</span>, and the
-associated device is <span class="code">dev</span>.
-The constructed context uses the <span class="code">asyncHandler</span> parameter to handle
-exceptions.</p>
+<p><em>Effects:</em> Constructs a <span class="code">context</span> object using the device selected by
+<span class="code">default_selector_v</span>.
+The context&#8217;s platform is the platform that contains this device.
+The context contains the selected device.
+The context may also contain other devices from the same platform.
+Whether this happens is implementation defined.
+The context has the asynchronous error handler <span class="code">asyncHandler</span>.</p>
 </div>
 <hr>
-<div id="api:context-ctor-dev-list" class="listingblock synopsis">
-<a href="#api:context-ctor-dev-list"></a>
-<div class="title"><span class="apititle">Construct from device list</span></div>
+<div id="api:context-ctor-device" class="listingblock synopsis">
+<a href="#api:context-ctor-device"></a>
+<div class="title"><span class="apititle">Constructor with device</span></div>
 <div class="content">
-<pre class="rouge highlight nowrap"><code data-lang="sycl"><span class="k">explicit</span> <span class="kr">context</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kr">device</span><span class="o">&gt;&amp;</span> <span class="n">deviceList</span><span class="p">,</span>
-                 <span class="kr">async_handler</span> <span class="n">asyncHandler</span> <span class="o">=</span> <span class="p">{})</span></code></pre>
+<pre class="rouge highlight nowrap"><code data-lang="sycl"><span class="k">explicit</span> <span class="kr">context</span><span class="p">(</span><span class="k">const</span> <span class="kr">device</span><span class="o">&amp;</span> <span class="n">dev</span><span class="p">,</span> <span class="k">const</span> <span class="kr">property_list</span><span class="o">&amp;</span> <span class="n">propList</span> <span class="o">=</span> <span class="p">{})</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><em>Effects:</em> Constructs a <span class="code">context</span> object that contains the device
+<span class="code">dev</span>.
+The context&#8217;s platform is the platform that contains <span class="code">dev</span>.</p>
+</div>
+<hr>
+<div id="api:context-ctor-device-async-handler" class="listingblock synopsis">
+<a href="#api:context-ctor-device-async-handler"></a>
+<div class="title"><span class="apititle">Constructor with device and async handler</span></div>
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="sycl"><span class="k">explicit</span> <span class="kr">context</span><span class="p">(</span><span class="k">const</span> <span class="kr">device</span><span class="o">&amp;</span> <span class="n">dev</span><span class="p">,</span> <span class="kr">async_handler</span> <span class="n">asyncHandler</span><span class="p">,</span>
+                 <span class="k">const</span> <span class="kr">property_list</span><span class="o">&amp;</span> <span class="n">propList</span> <span class="o">=</span> <span class="p">{})</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><em>Effects:</em> Constructs a <span class="code">context</span> object that contains the device
+<span class="code">dev</span>.
+The context&#8217;s platform is the platform that contains <span class="code">dev</span>.
+The context has the asynchronous error handler <span class="code">asyncHandler</span>.</p>
+</div>
+<hr>
+<div id="api:context-ctor-platform" class="listingblock synopsis">
+<a href="#api:context-ctor-platform"></a>
+<div class="title"><span class="apititle">Constructor with platform</span></div>
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="sycl"><span class="k">explicit</span> <span class="kr">context</span><span class="p">(</span><span class="k">const</span> <span class="kr">platform</span><span class="o">&amp;</span> <span class="n">plt</span><span class="p">,</span> <span class="k">const</span> <span class="kr">property_list</span><span class="o">&amp;</span> <span class="n">propList</span> <span class="o">=</span> <span class="p">{})</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><em>Effects:</em> Constructs a <span class="code">context</span> object that contains all of the devices
+in the platform <span class="code">plt</span>.
+The context&#8217;s platform is <span class="code">plt</span>.</p>
+</div>
+<div class="paragraph">
+<p><em>Throws:</em> An <span class="code">exception</span> with the <span class="code">errc::invalid</span> error code if the
+platform <span class="code">plt</span> contains no devices.</p>
+</div>
+<hr>
+<div id="api:context-ctor-platform-async-handler" class="listingblock synopsis">
+<a href="#api:context-ctor-platform-async-handler"></a>
+<div class="title"><span class="apititle">Constructor with platform and async handler</span></div>
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="sycl"><span class="k">explicit</span> <span class="kr">context</span><span class="p">(</span><span class="k">const</span> <span class="kr">platform</span><span class="o">&amp;</span> <span class="n">plt</span><span class="p">,</span> <span class="kr">async_handler</span> <span class="n">asyncHandler</span><span class="p">,</span>
+                 <span class="k">const</span> <span class="kr">property_list</span><span class="o">&amp;</span> <span class="n">propList</span> <span class="o">=</span> <span class="p">{})</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><em>Effects:</em> Constructs a <span class="code">context</span> object that contains all of the devices
+in the platform <span class="code">plt</span>.
+The context&#8217;s platform is <span class="code">plt</span>.
+The context has the asynchronous error handler <span class="code">asyncHandler</span>.</p>
+</div>
+<div class="paragraph">
+<p><em>Throws:</em> An <span class="code">exception</span> with the <span class="code">errc::invalid</span> error code if the
+platform <span class="code">plt</span> contains no devices.</p>
+</div>
+<hr>
+<div id="api:context-ctor-device-list" class="listingblock synopsis">
+<a href="#api:context-ctor-device-list"></a>
+<div class="title"><span class="apititle">Constructor with device list</span></div>
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="sycl"><span class="k">explicit</span> <span class="kr">context</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kr">device</span><span class="o">&gt;&amp;</span> <span class="n">deviceList</span><span class="p">,</span> <span class="k">const</span> <span class="kr">property_list</span><span class="o">&amp;</span> <span class="n">propList</span> <span class="o">=</span> <span class="p">{})</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -7187,13 +7260,38 @@ exceptions.</p>
 same platform.</p>
 </div>
 <div class="paragraph">
-<p><em>Effects:</em> Constructs a <span class="code">context</span> object using the <span class="code">deviceList</span>
-parameter to determine the associated platform and device.
-The associated platform is the platform that contains all of the devices in
+<p><em>Effects:</em> Constructs a <span class="code">context</span> object that contains all of the devices
+in <span class="code">deviceList</span>.
+The context&#8217;s platform is the platform that contains the devices in
+<span class="code">deviceList</span>.</p>
+</div>
+<div class="paragraph">
+<p><em>Throws:</em> An <span class="code">exception</span> with the <span class="code">errc::invalid</span> error code if
+<span class="code">deviceList</span> is empty.</p>
+</div>
+<hr>
+<div id="api:context-ctor-device-list-async-handler" class="listingblock synopsis">
+<a href="#api:context-ctor-device-list-async-handler"></a>
+<div class="title"><span class="apititle">Constructor with device list and async handler</span></div>
+<div class="content">
+<pre class="rouge highlight nowrap"><code data-lang="sycl"><span class="k">explicit</span> <span class="kr">context</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kr">device</span><span class="o">&gt;&amp;</span> <span class="n">deviceList</span><span class="p">,</span> <span class="kr">async_handler</span> <span class="n">asyncHandler</span><span class="p">,</span>
+                 <span class="k">const</span> <span class="kr">property_list</span><span class="o">&amp;</span> <span class="n">propList</span> <span class="o">=</span> <span class="p">{})</span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><em>Preconditions:</em> All devices in <span class="code">deviceList</span> must be associated with the
+same platform.</p>
+</div>
+<div class="paragraph">
+<p><em>Effects:</em> Constructs a <span class="code">context</span> object that contains all of the devices
+in <span class="code">deviceList</span>.
+The context&#8217;s platform is the platform that contains the devices in
 <span class="code">deviceList</span>.
-The associated devices are those devices in <span class="code">deviceList</span>.
-The constructed context uses the <span class="code">asyncHandler</span> parameter to handle
-exceptions.</p>
+The context has the asynchronous error handler <span class="code">asyncHandler</span>.</p>
+</div>
+<div class="paragraph">
+<p><em>Throws:</em> An <span class="code">exception</span> with the <span class="code">errc::invalid</span> error code if
+<span class="code">deviceList</span> is empty.</p>
 </div>
 <hr>
 </div>
@@ -7408,12 +7506,14 @@ orders.)</p>
 </div>
 <div class="paragraph">
 <p><em>Returns:</em> The set of memory scopes supported by atomic operations on all
-devices in the context.
+devices in the context, which is a subset of {<span class="code">memory_scope::sub_group</span>,
+<span class="code">memory_scope::work_group</span>, <span class="code">memory_scope::device</span>,
+<span class="code">memory_scope::system</span>}.
 When a context returns a "wider" memory scope in this set, it must also return
-all "narrower" memory scopes.
+all "narrower" memory scopes in this subset.
 (See <a href="#sec:memory-scope">Section 3.8.3.2</a> for a definition of "wider" and "narrower" scopes.)
-At a minimum, each context must support <span class="code">memory_scope::work_item</span>,
-<span class="code">memory_scope::sub_group</span>, and <span class="code">memory_scope::work_group</span>.</p>
+At a minimum, each context must support <span class="code">memory_scope::sub_group</span> and
+<span class="code">memory_scope::work_group</span>.</p>
 </div>
 <hr>
 <div id="api:info-context-atomic-fence-scope-capabilities" class="listingblock synopsis">
@@ -7444,7 +7544,8 @@ At a minimum, each context must support <span class="code">memory_scope::work_it
 <div class="sect4">
 <h5 id="sec:context-properties"><a class="anchor" href="#sec:context-properties"></a>4.6.3.4. Properties</h5>
 <div class="paragraph">
-<p>The <span class="code">property_list</span> constructor parameters are present for extensibility.</p>
+<p>The <a href="#core-spec">core SYCL specification</a> does not define any properties for the context constructors.
+The <span class="code">property_list</span> constructor parameters are present for extensibility.</p>
 </div>
 </div>
 </div>
@@ -7471,8 +7572,8 @@ objects returned by <a href="#api:device-get-devices"><span class="api">device::
 <div class="paragraph">
 <p>A device can be partitioned into multiple devices, by calling the
 <span class="code">device::create_sub_devices</span> member function template.
-The resulting <span class="code">device</span> objects are considered sub devices, and it is valid
-to partition these sub devices further.
+The resulting <span class="code">device</span> objects are considered sub-devices, and it is valid
+to partition these sub-devices further.
 The range of support for this feature is <a href="#backend">SYCL backend</a> and device specific and can
 be queried for through <a href="#api:device-get-info"><span class="api">device::get_info</span></a>.</p>
 </div>
@@ -7714,13 +7815,13 @@ by the <span class="code">extension</span> parameter.</p>
 <a href="#sec:device-enum-partition-property"><span class="api">info::partition_property::partition_equally</span></a>.</p>
 </div>
 <div class="paragraph">
-<p><em>Returns:</em> A <span class="code">std::vector</span> of sub devices partitioned from this
+<p><em>Returns:</em> A <span class="code">std::vector</span> of sub-devices partitioned from this
 <span class="code">device</span> object based on the <span class="code">count</span> parameter.
-The returned vector contains as many sub devices as can be created such that
-each sub device contains <span class="code">count</span> compute units.
+The returned vector contains as many sub-devices as can be created such that
+each sub-device contains <span class="code">count</span> compute units.
 If the device&#8217;s total number of compute units (as returned by
 <a href="#api:info-device-max-compute-units"><span class="api">info::device::max_compute_units</span></a>) is not evenly divided by <span class="code">count</span>,
-then the remaining compute units are not included in any of the sub devices.</p>
+then the remaining compute units are not included in any of the sub-devices.</p>
 </div>
 <div class="paragraph">
 <p><em>Throws:</em></p>
@@ -7752,9 +7853,9 @@ if this device does not support
 <a href="#sec:device-enum-partition-property"><span class="api">info::partition_property::partition_by_counts</span></a>.</p>
 </div>
 <div class="paragraph">
-<p><em>Returns:</em> A <span class="code">std::vector</span> of sub devices partitioned from this
+<p><em>Returns:</em> A <span class="code">std::vector</span> of sub-devices partitioned from this
 <span class="code">device</span> object based on the <span class="code">counts</span> parameter.
-For each non-zero value <em>M</em> in the <span class="code">counts</span> vector, a sub device with <em>M</em>
+For each non-zero value <em>M</em> in the <span class="code">counts</span> vector, a sub-device with <em>M</em>
 compute units is created.</p>
 </div>
 <div class="paragraph">
@@ -7770,7 +7871,7 @@ if this device does not support
 <li>
 <p>An <span class="code">exception</span> with the <span class="code">errc::invalid</span> error code if the number
 of non-zero values in <span class="code">counts</span> exceeds the device&#8217;s maximum number of
-sub devices (as returned by <a href="#api:info-device-partition-max-sub-devices"><span class="api">info::device::partition_max_sub_devices</span></a>) or
+sub-devices (as returned by <a href="#api:info-device-partition-max-sub-devices"><span class="api">info::device::partition_max_sub_devices</span></a>) or
 if the total of all the values in the <span class="code">counts</span> vector exceeds the total
 number of compute units in the device (as returned by
 <a href="#api:info-device-max-compute-units"><span class="api">info::device::max_compute_units</span></a>).</p>
@@ -7792,40 +7893,40 @@ number of compute units in the device (as returned by
 <a href="#sec:device-enum-partition-property"><span class="api">info::partition_property::partition_by_affinity_domain</span></a>.</p>
 </div>
 <div class="paragraph">
-<p><em>Returns:</em> A <span class="code">std::vector</span> of sub devices partitioned from this
+<p><em>Returns:</em> A <span class="code">std::vector</span> of sub-devices partitioned from this
 <span class="code">device</span> object based on the <span class="code">domain</span> parameter, which must be one
 of the following values:</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><a href="#sec:device-enum-partition-affinity-domain"><span class="api">info::partition_affinity_domain::numa</span></a>: Split the device into sub
-devices comprised of compute units that share a NUMA node.</p>
+<p><a href="#sec:device-enum-partition-affinity-domain"><span class="api">info::partition_affinity_domain::numa</span></a>: Split the device into
+sub-devices comprised of compute units that share a NUMA node.</p>
 </li>
 <li>
-<p><a href="#sec:device-enum-partition-affinity-domain"><span class="api">info::partition_affinity_domain::L4_cache</span></a>: Split the device into sub
-devices comprised of compute units that share a level 4 data cache.</p>
+<p><a href="#sec:device-enum-partition-affinity-domain"><span class="api">info::partition_affinity_domain::L4_cache</span></a>: Split the device into
+sub-devices comprised of compute units that share a level 4 data cache.</p>
 </li>
 <li>
-<p><a href="#sec:device-enum-partition-affinity-domain"><span class="api">info::partition_affinity_domain::L3_cache</span></a>: Split the device into sub
-devices comprised of compute units that share a level 3 data cache.</p>
+<p><a href="#sec:device-enum-partition-affinity-domain"><span class="api">info::partition_affinity_domain::L3_cache</span></a>: Split the device into
+sub-devices comprised of compute units that share a level 3 data cache.</p>
 </li>
 <li>
-<p><a href="#sec:device-enum-partition-affinity-domain"><span class="api">info::partition_affinity_domain::L2_cache</span></a>: Split the device into sub
-devices comprised of compute units that share a level 2 data cache.</p>
+<p><a href="#sec:device-enum-partition-affinity-domain"><span class="api">info::partition_affinity_domain::L2_cache</span></a>: Split the device into
+sub-devices comprised of compute units that share a level 2 data cache.</p>
 </li>
 <li>
-<p><a href="#sec:device-enum-partition-affinity-domain"><span class="api">info::partition_affinity_domain::L1_cache</span></a>: Split the device into sub
-devices comprised of compute units that share a level 1 data cache.</p>
+<p><a href="#sec:device-enum-partition-affinity-domain"><span class="api">info::partition_affinity_domain::L1_cache</span></a>: Split the device into
+sub-devices comprised of compute units that share a level 1 data cache.</p>
 </li>
 <li>
 <p><a href="#sec:device-enum-partition-affinity-domain"><span class="api">info::partition_affinity_domain::next_partitionable</span></a>: Split the device
 along the next partitionable affinity domain.
-The implementation shall find the first level along which the device or sub
-device may be further subdivided in the order <span class="code">numa</span>, <span class="code">L4_cache</span>,
-<span class="code">L3_cache</span>, <span class="code">L2_cache</span>, <span class="code">L1_cache</span>, and partition the device
-into sub devices comprised of compute units that share memory subsystems at
-this level.
+The implementation shall find the first level along which the device or
+sub-device may be further subdivided in the order <span class="code">numa</span>,
+<span class="code">L4_cache</span>, <span class="code">L3_cache</span>, <span class="code">L2_cache</span>, <span class="code">L1_cache</span>, and
+partition the device into sub-devices comprised of compute units that share
+memory subsystems at this level.
 The user may determine what happened via
 <a href="#api:info-device-partition-type-affinity-domain"><span class="api">info::device::partition_type_affinity_domain</span></a>.</p>
 </li>
@@ -8078,6 +8179,9 @@ sub-group sizes supported by the device.</p>
 <span class="k">struct</span> <span class="nc">preferred_vector_width_long</span> <span class="p">{</span>
   <span class="k">using</span> <span class="n">return_type</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span><span class="p">;</span>
 <span class="p">};</span>
+<span class="k">struct</span> <span class="nc">preferred_vector_width_long_long</span> <span class="p">{</span>
+  <span class="k">using</span> <span class="n">return_type</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span><span class="p">;</span>
+<span class="p">};</span>
 <span class="k">struct</span> <span class="nc">preferred_vector_width_float</span> <span class="p">{</span>
   <span class="k">using</span> <span class="n">return_type</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span><span class="p">;</span>
 <span class="p">};</span>
@@ -8119,6 +8223,9 @@ device does not have <a href="#api:aspect-fp64"><span class="api">aspect::fp64</
   <span class="k">using</span> <span class="n">return_type</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span><span class="p">;</span>
 <span class="p">};</span>
 <span class="k">struct</span> <span class="nc">native_vector_width_long</span> <span class="p">{</span>
+  <span class="k">using</span> <span class="n">return_type</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="k">struct</span> <span class="nc">native_vector_width_long_long</span> <span class="p">{</span>
   <span class="k">using</span> <span class="n">return_type</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span><span class="p">;</span>
 <span class="p">};</span>
 <span class="k">struct</span> <span class="nc">native_vector_width_float</span> <span class="p">{</span>
@@ -8879,12 +8986,14 @@ At a minimum, each device must support <span class="code">memory_order::relaxed<
 </div>
 <div class="paragraph">
 <p><em>Returns:</em> The set of memory scopes supported by atomic operations on this
-device.
+device, which is a subset of {<span class="code">memory_scope::sub_group</span>,
+<span class="code">memory_scope::work_group</span>, <span class="code">memory_scope::device</span>,
+<span class="code">memory_scope::system</span>}.
 When a device returns a "wider" memory scope in this set, it must also return
-all "narrower" memory scopes.
+all "narrower" memory scopes in this subset.
 (See <a href="#sec:memory-scope">Section 3.8.3.2</a> for a definition of "wider" and "narrower" scopes.)
-At a minimum, each device must support <span class="code">memory_scope::work_item</span>,
-<span class="code">memory_scope::sub_group</span>, and <span class="code">memory_scope::work_group</span>.</p>
+At a minimum, each device must support <span class="code">memory_scope::sub_group</span> and
+<span class="code">memory_scope::work_group</span>.</p>
 </div>
 <hr>
 <div id="api:info-device-atomic-fence-scope-capabilities" class="listingblock synopsis">
@@ -9468,12 +9577,12 @@ backend of this device is not OpenCL.</p>
 <p><em>Remarks:</em> Template parameter to <a href="#api:device-get-info"><span class="api">device::get_info</span></a>.</p>
 </div>
 <div class="paragraph">
-<p><em>Returns:</em> The parent device to which this sub device is a child if this is a
-sub device.</p>
+<p><em>Returns:</em> The parent device to which this sub-device is a child if this is a
+sub-device.</p>
 </div>
 <div class="paragraph">
 <p><em>Throws:</em> An <span class="code">exception</span> with the <span class="code">errc::invalid</span> error code if this
-device is not a sub device.</p>
+device is not a sub-device.</p>
 </div>
 <hr>
 <div id="api:info-device-partition-max-sub-devices" class="listingblock synopsis">
@@ -9491,7 +9600,7 @@ device is not a sub device.</p>
 <p><em>Remarks:</em> Template parameter to <a href="#api:device-get-info"><span class="api">device::get_info</span></a>.</p>
 </div>
 <div class="paragraph">
-<p><em>Returns:</em> The maximum number of sub devices that can be created when this
+<p><em>Returns:</em> The maximum number of sub-devices that can be created when this
 device is partitioned.
 The value returned cannot exceed the value returned by
 <a href="#api:info-device-max-compute-units"><span class="api">info::device::max_compute_units</span></a>.</p>
@@ -9515,7 +9624,7 @@ The value returned cannot exceed the value returned by
 <p><em>Returns:</em> A <span class="code">std::vector</span> of the partition properties supported by this
 device.
 An element is returned in this vector only if the device can be partitioned into
-at least two sub devices along that partition property.</p>
+at least two sub-devices along that partition property.</p>
 </div>
 <hr>
 <div id="api:info-device-partition-affinity-domains" class="listingblock synopsis">
@@ -9537,7 +9646,7 @@ at least two sub devices along that partition property.</p>
 this device when partitioning with
 <a href="#sec:device-enum-partition-property"><span class="api">info::partition_property::partition_by_affinity_domain</span></a>.
 An element is returned in this vector only if the device can be partitioned into
-at least two sub devices along that affinity domain.</p>
+at least two sub-devices along that affinity domain.</p>
 </div>
 <hr>
 <div id="api:info-device-partition-type-property" class="listingblock synopsis">
@@ -9556,7 +9665,7 @@ at least two sub devices along that affinity domain.</p>
 </div>
 <div class="paragraph">
 <p><em>Returns:</em> The partition property of this device.
-If this device is not a sub device then the return value is
+If this device is not a sub-device then the return value is
 <a href="#sec:device-enum-partition-property"><span class="api">info::partition_property::no_partition</span></a>, otherwise it is one of the
 following values:</p>
 </div>
@@ -9590,7 +9699,7 @@ following values:</p>
 </div>
 <div class="paragraph">
 <p><em>Returns:</em> The partition affinity domain of this device.
-If this device is not a sub device or the sub device was not partitioned with
+If this device is not a sub-device or the sub-device was not partitioned with
 <a href="#sec:device-enum-partition-property"><span class="api">info::partition_property::partition_by_affinity_domain</span></a> then the return
 value is <a href="#sec:device-enum-partition-affinity-domain"><span class="api">info::partition_affinity_domain::not_applicable</span></a>, otherwise it is
 one of the following values:</p>
@@ -9861,8 +9970,8 @@ All devices that have this aspect also have <a href="#api:aspect-online-compiler
 <div class="paragraph">
 <p>Indicates that the device can access USM memory allocated via
 <span class="code">usm::alloc::host</span>.
-The device only supports atomic modification of a host allocation if
-<a href="#api:aspect-usm-atomic-host-allocations"><span class="api">aspect::usm_atomic_host_allocations</span></a> is also supported.
+Concurrent access and atomic modification of a host allocation is only supported
+if <a href="#api:aspect-usm-atomic-host-allocations"><span class="api">aspect::usm_atomic_host_allocations</span></a> is also supported.
 (See <a href="#sec:usm">Section 4.8</a>.)</p>
 </div>
 </div>
@@ -10516,16 +10625,16 @@ completes.</p>
 
   <span class="cm">/* -- Shortcut functions: prefetch -- */</span>
 
-  <span class="kr">event</span> <span class="nf">prefetch</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">);</span>
-  <span class="kr">event</span> <span class="nf">prefetch</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">,</span> <span class="kr">event</span> <span class="n">depEvent</span><span class="p">);</span>
-  <span class="kr">event</span> <span class="nf">prefetch</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">,</span>
+  <span class="kr">event</span> <span class="nf">prefetch</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">);</span>
+  <span class="kr">event</span> <span class="nf">prefetch</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">,</span> <span class="kr">event</span> <span class="n">depEvent</span><span class="p">);</span>
+  <span class="kr">event</span> <span class="nf">prefetch</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">,</span>
                  <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kr">event</span><span class="o">&gt;&amp;</span> <span class="n">depEvents</span><span class="p">);</span>
 
   <span class="cm">/* -- Shortcut functions: mem_advise -- */</span>
 
-  <span class="kr">event</span> <span class="nf">mem_advise</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">,</span> <span class="kt">int</span> <span class="n">advice</span><span class="p">);</span>
-  <span class="kr">event</span> <span class="nf">mem_advise</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">,</span> <span class="kt">int</span> <span class="n">advice</span><span class="p">,</span> <span class="kr">event</span> <span class="n">depEvent</span><span class="p">);</span>
-  <span class="kr">event</span> <span class="nf">mem_advise</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">,</span> <span class="kt">int</span> <span class="n">advice</span><span class="p">,</span>
+  <span class="kr">event</span> <span class="nf">mem_advise</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">,</span> <span class="kt">int</span> <span class="n">advice</span><span class="p">);</span>
+  <span class="kr">event</span> <span class="nf">mem_advise</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">,</span> <span class="kt">int</span> <span class="n">advice</span><span class="p">,</span> <span class="kr">event</span> <span class="n">depEvent</span><span class="p">);</span>
+  <span class="kr">event</span> <span class="nf">mem_advise</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">,</span> <span class="kt">int</span> <span class="n">advice</span><span class="p">,</span>
                    <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kr">event</span><span class="o">&gt;&amp;</span> <span class="n">depEvents</span><span class="p">);</span>
 
   <span class="cm">/* -- Shortcut functions: update_host -- */</span>
@@ -11299,11 +11408,11 @@ queue.</p>
 <a href="#api:queue-prefetch"></a>
 <div class="title"><span class="apidef">queue::prefetch</span></div>
 <div class="content">
-<pre class="rouge highlight nowrap"><code data-lang="sycl"><span class="kr">event</span> <span class="fm">prefetch</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">)</span>                                      <span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<pre class="rouge highlight nowrap"><code data-lang="sycl"><span class="kr">event</span> <span class="fm">prefetch</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">)</span>                                      <span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
-<span class="kr">event</span> <span class="fm">prefetch</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">,</span> <span class="kr">event</span> <span class="n">depEvent</span><span class="p">)</span>                      <span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="kr">event</span> <span class="fm">prefetch</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">,</span> <span class="kr">event</span> <span class="n">depEvent</span><span class="p">)</span>                      <span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 
-<span class="kr">event</span> <span class="fm">prefetch</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kr">event</span><span class="o">&gt;&amp;</span> <span class="n">depEvents</span><span class="p">)</span> <span class="p">(</span><span class="mi">3</span><span class="p">)</span></code></pre>
+<span class="kr">event</span> <span class="fm">prefetch</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kr">event</span><span class="o">&gt;&amp;</span> <span class="n">depEvents</span><span class="p">)</span> <span class="p">(</span><span class="mi">3</span><span class="p">)</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -11329,11 +11438,11 @@ queue.</p>
 <a href="#api:queue-mem-advise"></a>
 <div class="title"><span class="apidef">queue::mem_advise</span></div>
 <div class="content">
-<pre class="rouge highlight nowrap"><code data-lang="sycl"><span class="kr">event</span> <span class="fm">mem_advise</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">,</span> <span class="kt">int</span> <span class="n">advice</span><span class="p">)</span>                 <span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<pre class="rouge highlight nowrap"><code data-lang="sycl"><span class="kr">event</span> <span class="fm">mem_advise</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">,</span> <span class="kt">int</span> <span class="n">advice</span><span class="p">)</span>                 <span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
-<span class="kr">event</span> <span class="fm">mem_advise</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">,</span> <span class="kt">int</span> <span class="n">advice</span><span class="p">,</span> <span class="kr">event</span> <span class="n">depEvent</span><span class="p">)</span> <span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="kr">event</span> <span class="fm">mem_advise</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">,</span> <span class="kt">int</span> <span class="n">advice</span><span class="p">,</span> <span class="kr">event</span> <span class="n">depEvent</span><span class="p">)</span> <span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 
-<span class="kr">event</span> <span class="fm">mem_advise</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">,</span> <span class="kt">int</span> <span class="n">advice</span><span class="p">,</span>                 <span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="kr">event</span> <span class="fm">mem_advise</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">,</span> <span class="kt">int</span> <span class="n">advice</span><span class="p">,</span>                 <span class="p">(</span><span class="mi">3</span><span class="p">)</span>
                  <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kr">event</span><span class="o">&gt;&amp;</span> <span class="n">depEvents</span><span class="p">)</span></code></pre>
 </div>
 </div>
@@ -11654,7 +11763,10 @@ direct dependencies wait on.</p>
 </div>
 <div class="paragraph">
 <p><em>Remarks:</em> Whether already completed events are included in the returned list is
-implementation-defined.</p>
+implementation-defined.
+If the event is associated with a command submitted to an in-order queue, then
+it is implementation-defined whether this function returns any dependent events
+or if it returns an empty vector.</p>
 </div>
 <hr>
 <div id="api:event-wait" class="listingblock synopsis">
@@ -23470,12 +23582,31 @@ memory, which requires an explicit copy between the device and the host:</p>
 <div class="sect3">
 <h4 id="_unified_addressing"><a class="anchor" href="#_unified_addressing"></a>4.8.1. Unified addressing</h4>
 <div class="paragraph">
-<p>Unified Addressing guarantees that all devices will use a unified address space.
-Pointer values in the unified address space will always refer to the same
-location in memory.
-The unified address space encompasses the host and one or more devices.
-Note that this does not require addresses in the unified address space to be
-accessible on all devices, just that pointer values will be consistent.</p>
+<p>The following guarantees apply to the pointer values of USM allocations for
+objects with overlapping lifetimes:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>A USM pointer is different from all non-USM memory addresses on the host.</p>
+</li>
+<li>
+<p>A USM host memory pointer allocated from context <em>C</em> has a value that is
+different from all other USM host memory pointers (regardless of context),
+different from all USM shared memory pointers (regardless of context), and
+different from all USM device memory pointers allocated from context <em>C</em>.</p>
+</li>
+<li>
+<p>A USM shared memory pointer allocated from context <em>C</em> has a value that is
+different from all other USM shared memory pointers (regardless of context),
+different from all USM host memory pointers (regardless of context), and
+different from all USM device memory pointers allocated from context <em>C</em>.</p>
+</li>
+<li>
+<p>A USM device memory pointer allocated from context <em>C</em> has a value that is
+different from all other USM pointers allocated from context <em>C</em>.</p>
+</li>
+</ul>
 </div>
 </div>
 <div class="sect3">
@@ -26040,16 +26171,24 @@ Then return the initial copy of the <span class="code">id</span>.</p>
 <div class="sect4">
 <h5 id="subsec:item.class"><a class="anchor" href="#subsec:item.class"></a>4.9.1.4. <span class="code">item</span> class</h5>
 <div class="paragraph">
-<p><a href="#item">item</a> identifies an instance of the function object executing at each point
-in a <span class="code">range</span>.
-It is passed to a <span class="code">parallel_for</span> call or returned by member functions of
-<span class="code">h_item</span>.
+<p>The <span class="code">item</span> class template identifies an instance of a kernel function
+object executing at each point in a <a href="#range">range</a>.
 It encapsulates enough information to identify the work-item&#8217;s range of possible
-values and its ID in that range.
-It can optionally carry the offset of the range if provided to the
-<span class="code">parallel_for</span>; note this is deprecated in SYCL 2020.
-Instances of the <span class="code">item</span> class are not user-constructible and are passed by
-the runtime to each instance of the function object.</p>
+values and its ID in that range.</p>
+</div>
+<div class="paragraph">
+<p>The implementation constructs instances of the <span class="code">item</span> class template.
+Applications that attempt to default construct an <span class="code">item</span> object are ill
+formed, and the implementation must issue a diagnostic in this case.</p>
+</div>
+<div class="paragraph">
+<p>[<em>Note:</em> If using C++17, implementations must ensure that the <span class="code">item</span> class
+template is not an aggregate.
+<em>&#8212;&#160;end&#160;note</em>]</p>
+</div>
+<div class="paragraph">
+<p>The <span class="code">item</span> class template can optionally carry the offset of the range if
+provided to the <span class="code">parallel_for</span>; note this is deprecated in SYCL 2020.</p>
 </div>
 <div class="paragraph">
 <p>The SYCL <span class="code">item</span> class template provides the common by-value semantics (see
@@ -26268,15 +26407,21 @@ write code that assumes an offset and still provides an offset-less <span class=
 <div class="sect4">
 <h5 id="nditem-class"><a class="anchor" href="#nditem-class"></a>4.9.1.5. <span class="code">nd_item</span> class</h5>
 <div class="paragraph">
-<p><span class="code">nd_item&lt;int Dimensions&gt;</span> identifies an instance of the function object
-executing at each point in an <span class="code">nd_range&lt;int Dimensions&gt;</span> passed to a
-<span class="code">parallel_for</span> call.
-It encapsulates enough information to identify the <a href="#work-item">work-item</a>'s local and
-global <a href="#id">ids</a>, the <a href="#work-group-id">work-group id</a> and also provides access to the
-<span class="code">group</span> and <span class="code">sub_group</span> classes.
-Instances of the <span class="code">nd_item&lt;int Dimensions&gt;</span> class are not
-user-constructible and are passed by the runtime to each instance of the
-function object.</p>
+<p>The <span class="code">nd_item</span> class template identifies an instance of a kernel function
+object executing at each point in an <a href="#nd-range">nd-range</a>.
+It encapsulates enough information to identify the work-item&#8217;s local and global
+<a href="#id">ids</a>, the <a href="#work-group-id">work-group id</a> and also provides access to the <span class="code">group</span>
+and <span class="code">sub_group</span> classes.</p>
+</div>
+<div class="paragraph">
+<p>The implementation constructs instances of the <span class="code">nd_item</span> class template.
+Applications that attempt to default construct an <span class="code">nd_item</span> object are ill
+formed, and the implementation must issue a diagnostic in this case.</p>
+</div>
+<div class="paragraph">
+<p>[<em>Note:</em> If using C++17, implementations must ensure that the <span class="code">nd_item</span>
+class template is not an aggregate.
+<em>&#8212;&#160;end&#160;note</em>]</p>
 </div>
 <div class="paragraph">
 <p>The SYCL <span class="code">nd_item</span> class template provides the common by-value semantics
@@ -26897,7 +27042,7 @@ destination stride specified by <span class="code">destStride</span> and returns
 <p>The <span class="code">h_item</span> class is deprecated in SYCL 2020.</p>
 </div>
 <div class="paragraph">
-<p><span class="code">h_item&lt;int Dimensions&gt;</span> identifies an instance of a
+<p>The <span class="code">h_item</span> class template identifies an instance of a
 <span class="code">group::parallel_for_work_item</span> function object executing at each point in
 a local <span class="code">range&lt;int Dimensions&gt;</span> passed to a <span class="code">parallel_for_work_item</span>
 call or to the corresponding <span class="code">parallel_for_work_group</span> call if no
@@ -26906,9 +27051,17 @@ It encapsulates enough information to identify the <a href="#work-item">work-ite
 global <a href="#item">items</a> according to the information given to
 <span class="code">parallel_for_work_group</span> (physical ids) as well as the <a href="#work-item">work-item</a>'s
 logical local <a href="#item">items</a> in the logical local range.
-All returned <a href="#item">items</a> objects are offset-less.
-Instances of the <span class="code">h_item&lt;int Dimensions&gt;</span> class are not user-constructible
-and are passed by the runtime to each instance of the function object.</p>
+All returned <a href="#item">items</a> objects are offset-less.</p>
+</div>
+<div class="paragraph">
+<p>The implementation constructs instances of the <span class="code">h_item</span> class template.
+Applications that attempt to default construct an <span class="code">h_item</span> object are ill
+formed, and the implementation must issue a diagnostic in this case.</p>
+</div>
+<div class="paragraph">
+<p>[<em>Note:</em> If using C++17, implementations must ensure that the <span class="code">h_item</span>
+class template is not an aggregate.
+<em>&#8212;&#160;end&#160;note</em>]</p>
 </div>
 <div class="paragraph">
 <p>The SYCL <span class="code">h_item</span> class template provides the common by-value semantics
@@ -27262,9 +27415,20 @@ of the logical id and the physical range:
 <div class="sect4">
 <h5 id="group-class"><a class="anchor" href="#group-class"></a>4.9.1.7. <span class="code">group</span> class</h5>
 <div class="paragraph">
-<p>The <span class="code">group&lt;int Dimensions&gt;</span> encapsulates all functionality required to
-represent a particular <a href="#work-group">work-group</a> within a parallel execution.
-It is not user-constructible.</p>
+<p>The <span class="code">group</span> class template encapsulates all functionality required to
+represent a specific <a href="#work-group">work-group</a> within a kernel.</p>
+</div>
+<div class="paragraph">
+<p>The set of work-items represented by an instance of the <span class="code">group</span> class
+template is determined by the implementation, and there is subsequently no way
+for a user to construct arbitrary instances of the <span class="code">group</span> class template.
+Applications that attempt to default construct a <span class="code">group</span> object are ill
+formed, and the implementation must issue a diagnostic in this case.</p>
+</div>
+<div class="paragraph">
+<p>[<em>Note:</em> If using C++17, implementations must ensure that the <span class="code">group</span> class
+template is not an aggregate.
+<em>&#8212;&#160;end&#160;note</em>]</p>
 </div>
 <div class="paragraph">
 <p>The local range stored in the group class is provided either by the programmer,
@@ -27397,6 +27561,8 @@ listed in <a href="#sec:byval-semantics">Section 4.5.3</a> in <a href="#table.sp
 107
 108
 109
+110
+111
 </pre></td><td class="code"><pre><span class="k">namespace</span> <span class="gh">sycl</span> <span class="p">{</span>
 <span class="k">template</span> <span class="o">&lt;</span><span class="kt">int</span> <span class="n">Dimensions</span> <span class="o">=</span> <span class="mi">1</span><span class="p">&gt;</span> <span class="k">class</span> <span class="nc">group</span> <span class="p">{</span>
  <span class="nl">public:</span>
@@ -27405,6 +27571,8 @@ listed in <a href="#sec:byval-semantics">Section 4.5.3</a> in <a href="#table.sp
   <span class="k">using</span> <span class="n">linear_id_type</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="p">;</span>
   <span class="k">static</span> <span class="k">constexpr</span> <span class="kt">int</span> <span class="n">dimensions</span> <span class="o">=</span> <span class="n">Dimensions</span><span class="p">;</span>
   <span class="k">static</span> <span class="k">constexpr</span> <span class="kr">memory_scope</span> <span class="n">fence_scope</span> <span class="o">=</span> <span class="kr">memory_scope</span><span class="o">::</span><span class="n">work_group</span><span class="p">;</span>
+
+  <span class="kr">group</span><span class="p">()</span> <span class="o">=</span> <span class="k">delete</span><span class="p">;</span>
 
   <span class="cm">/* -- common interface members -- */</span>
 
@@ -27910,8 +28078,19 @@ destination stride specified by <span class="code">destStride</span> and returns
 <h5 id="sub-group-class"><a class="anchor" href="#sub-group-class"></a>4.9.1.8. <span class="code">sub_group</span> class</h5>
 <div class="paragraph">
 <p>The <span class="code">sub_group</span> class encapsulates all functionality required to represent
-a particular <a href="#sub-group">sub-group</a> within a parallel execution.
-It is not user-constructible.</p>
+a specific <a href="#sub-group">sub-group</a> within a kernel.</p>
+</div>
+<div class="paragraph">
+<p>The set of work-items represented by an instance of the <span class="code">sub_group</span> class
+is determined by the implementation, and there is subsequently no way for a user
+to construct arbitrary instances of the <span class="code">sub_group</span> class.
+Applications that attempt to default construct a <span class="code">sub_group</span> object are
+ill formed, and the implementation must issue a diagnostic in this case.</p>
+</div>
+<div class="paragraph">
+<p>[<em>Note:</em> If using C++17, implementations must ensure that the <span class="code">sub_group</span>
+class is not an aggregate.
+<em>&#8212;&#160;end&#160;note</em>]</p>
 </div>
 <div class="paragraph">
 <p>The SYCL <span class="code">sub_group</span> class provides the common by-value semantics (see
@@ -27959,6 +28138,8 @@ listed in <a href="#sec:byval-semantics">Section 4.5.3</a> in <a href="#table.sp
 30
 31
 32
+33
+34
 </pre></td><td class="code"><pre><span class="k">namespace</span> <span class="gh">sycl</span> <span class="p">{</span>
 <span class="k">class</span> <span class="nc">sub_group</span> <span class="p">{</span>
  <span class="nl">public:</span>
@@ -27967,6 +28148,8 @@ listed in <a href="#sec:byval-semantics">Section 4.5.3</a> in <a href="#table.sp
   <span class="k">using</span> <span class="n">linear_id_type</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span><span class="p">;</span>
   <span class="k">static</span> <span class="k">constexpr</span> <span class="kt">int</span> <span class="n">dimensions</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
   <span class="k">static</span> <span class="k">constexpr</span> <span class="kr">memory_scope</span> <span class="n">fence_scope</span> <span class="o">=</span> <span class="kr">memory_scope</span><span class="o">::</span><span class="kr">sub_group</span><span class="p">;</span>
+
+  <span class="kr">sub_group</span><span class="p">()</span> <span class="o">=</span> <span class="k">delete</span><span class="p">;</span>
 
   <span class="cm">/* -- common interface members -- */</span>
 
@@ -29247,10 +29430,18 @@ command group scope will be submitted to a queue.</p>
 <div class="sect3">
 <h4 id="sec:handlerClass"><a class="anchor" href="#sec:handlerClass"></a>4.9.4. Command group <span class="code">handler</span> class</h4>
 <div class="paragraph">
-<p>A <a href="#handler">command group handler</a> object can only be constructed by the SYCL runtime.
-All of the accessors defined in <a href="#command-group-scope">command group scope</a> take as a parameter an
-instance of the <a href="#handler">command group handler</a>, and all the kernel invocation functions are member
-functions of this class.</p>
+<p>The implementation passes an instance of the <span class="code">handler</span> object to the
+<a href="#command-group-function-object">command group function object</a>.</p>
+</div>
+<div class="paragraph">
+<p>The implementation constructs instances of the <span class="code">handler</span> class.
+Applications that attempt to default construct a <span class="code">handler</span> object are ill
+formed, and the implementation must issue a diagnostic in this case.</p>
+</div>
+<div class="paragraph">
+<p>[<em>Note:</em> If using C++17, implementations must ensure that the <span class="code">handler</span>
+class is not an aggregate.
+<em>&#8212;&#160;end&#160;note</em>]</p>
 </div>
 <div class="paragraph">
 <p>It is disallowed for an instance of the SYCL <span class="code">handler</span> class to be moved
@@ -29478,9 +29669,9 @@ or copied.</p>
 
   <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span> <span class="kt">void</span> <span class="fm">fill</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">count</span><span class="p">);</span>
 
-  <span class="kt">void</span> <span class="fm">prefetch</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">);</span>
+  <span class="kt">void</span> <span class="fm">prefetch</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">);</span>
 
-  <span class="kt">void</span> <span class="fm">mem_advise</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">,</span> <span class="kt">int</span> <span class="n">advice</span><span class="p">);</span>
+  <span class="kt">void</span> <span class="fm">mem_advise</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">,</span> <span class="kt">int</span> <span class="n">advice</span><span class="p">);</span>
 
   <span class="c1">//------ Explicit memory operation APIs</span>
   <span class="c1">//</span>
@@ -31003,7 +31194,7 @@ detail on USM, please see <a href="#sec:usm">Section 4.8</a>.</p>
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="listingblock">
 <div class="content">
-<pre class="rouge highlight nowrap"><code data-lang="sycl"><span class="kt">void</span> <span class="fm">prefetch</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">)</span></code></pre>
+<pre class="rouge highlight nowrap"><code data-lang="sycl"><span class="kt">void</span> <span class="fm">prefetch</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">)</span></code></pre>
 </div>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
@@ -31016,7 +31207,7 @@ queue&#8217;s device.  For more detail on USM, please see <a href="#sec:usm">Sec
 <tr>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="listingblock">
 <div class="content">
-<pre class="rouge highlight nowrap"><code data-lang="sycl"><span class="kt">void</span> <span class="fm">mem_advise</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">,</span> <span class="kt">int</span> <span class="n">advice</span><span class="p">)</span></code></pre>
+<pre class="rouge highlight nowrap"><code data-lang="sycl"><span class="kt">void</span> <span class="fm">mem_advise</span><span class="p">(</span><span class="k">const</span> <span class="kt">void</span><span class="o">*</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">numBytes</span><span class="p">,</span> <span class="kt">int</span> <span class="n">advice</span><span class="p">)</span></code></pre>
 </div>
 </div></div></td>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="paragraph">
@@ -31891,8 +32082,14 @@ being invoked in order to allow a <a href="#host-task">host task</a> to be used 
 purposes.</p>
 </div>
 <div class="paragraph">
-<p>An <span class="code">interop_handle</span> cannot be constructed by user-code, only by the
-<a href="#sycl-runtime">SYCL runtime</a>.</p>
+<p>The implementation constructs instances of the <span class="code">interop_handle</span> class.
+Applications that attempt to default construct an <span class="code">interop_handle</span> object
+are ill formed, and the implementation must issue a diagnostic in this case.</p>
+</div>
+<div class="paragraph">
+<p>[<em>Note:</em> If using C++17, implementations must ensure that the
+<span class="code">interop_handle</span> class is not an aggregate.
+<em>&#8212;&#160;end&#160;note</em>]</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -31976,15 +32173,11 @@ with the <a href="#queue">queue</a> associated with this <span class="code">inte
 22
 23
 24
-25
-26
-</pre></td><td class="code"><pre>    <span class="c1">// SPDX-License-Identifier: MIT</span>
-
-    <span class="k">template</span> <span class="o">&lt;</span><span class="kr">backend</span> <span class="n">Backend</span><span class="p">,</span> <span class="k">typename</span> <span class="nc">DataT</span><span class="p">,</span> <span class="kt">int</span> <span class="n">Dims</span><span class="p">,</span> <span class="kr">access_mode</span> <span class="n">AccMode</span><span class="p">,</span>
-              <span class="kr">target</span> <span class="n">AccTarget</span><span class="p">,</span> <span class="kr">access</span><span class="o">::</span><span class="n">placeholder</span> <span class="n">IsPlaceholder</span><span class="p">&gt;</span>
-    <span class="kr">backend_return_t</span><span class="o">&lt;</span><span class="n">Backend</span><span class="p">,</span> <span class="kr">buffer</span><span class="o">&lt;</span><span class="n">DataT</span><span class="p">,</span> <span class="n">Dims</span><span class="o">&gt;&gt;</span>
-    <span class="fm">get_native_mem</span><span class="p">(</span><span class="k">const</span> <span class="kr">accessor</span><span class="o">&lt;</span><span class="n">DataT</span><span class="p">,</span> <span class="n">Dims</span><span class="p">,</span> <span class="n">AccMode</span><span class="p">,</span> <span class="n">AccTarget</span><span class="p">,</span> <span class="c1">// (1)</span>
-                                  <span class="n">IsPlaceholder</span><span class="o">&gt;&amp;</span> <span class="n">bufferAcc</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
+</pre></td><td class="code"><pre><span class="k">template</span> <span class="o">&lt;</span><span class="kr">backend</span> <span class="n">Backend</span><span class="p">,</span> <span class="k">typename</span> <span class="nc">DataT</span><span class="p">,</span> <span class="kt">int</span> <span class="n">Dims</span><span class="p">,</span> <span class="kr">access_mode</span> <span class="n">AccMode</span><span class="p">,</span>
+          <span class="kr">target</span> <span class="n">AccTarget</span><span class="p">,</span> <span class="kr">access</span><span class="o">::</span><span class="n">placeholder</span> <span class="n">IsPlaceholder</span><span class="p">&gt;</span>
+<span class="kr">backend_return_t</span><span class="o">&lt;</span><span class="n">Backend</span><span class="p">,</span> <span class="kr">buffer</span><span class="o">&lt;</span><span class="n">DataT</span><span class="p">,</span> <span class="n">Dims</span><span class="o">&gt;&gt;</span>
+<span class="fm">get_native_mem</span><span class="p">(</span><span class="k">const</span> <span class="kr">accessor</span><span class="o">&lt;</span><span class="n">DataT</span><span class="p">,</span> <span class="n">Dims</span><span class="p">,</span> <span class="n">AccMode</span><span class="p">,</span> <span class="n">AccTarget</span><span class="p">,</span> <span class="c1">// (1)</span>
+                              <span class="n">IsPlaceholder</span><span class="o">&gt;&amp;</span> <span class="n">bufferAcc</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
 
 <span class="k">template</span> <span class="o">&lt;</span><span class="kr">backend</span> <span class="n">Backend</span><span class="p">,</span> <span class="k">typename</span> <span class="nc">DataT</span><span class="p">,</span> <span class="kt">int</span> <span class="n">Dims</span><span class="p">,</span> <span class="kr">access_mode</span> <span class="n">AccMode</span><span class="p">&gt;</span>
 <span class="kr">backend_return_t</span><span class="o">&lt;</span><span class="n">Backend</span><span class="p">,</span> <span class="kr">unsampled_image</span><span class="o">&lt;</span><span class="n">Dims</span><span class="o">&gt;&gt;</span> <span class="fm">get_native_mem</span><span class="p">(</span> <span class="c1">// (2)</span>
@@ -32677,8 +32870,20 @@ exposes a bundle in <span class="code">bundle_state::object</span> for device D.
 <h4 id="_kernel_identifiers"><a class="anchor" href="#_kernel_identifiers"></a>4.11.5. Kernel identifiers</h4>
 <div class="paragraph">
 <p>Some of the functions related to kernel bundles take an input parameter of type
-<span class="code">kernel_id</span> which identifies a kernel.
-A synopsis of the <span class="code">kernel_id</span> class is shown below along with a
+<span class="code">kernel_id</span> which identifies a kernel.</p>
+</div>
+<div class="paragraph">
+<p>The implementation constructs instances of the <span class="code">kernel_id</span> class.
+Applications that attempt to default construct a <span class="code">kernel_id</span> object are
+ill formed, and the implementation must issue a diagnostic in this case.</p>
+</div>
+<div class="paragraph">
+<p>[<em>Note:</em> If using C++17, implementations must ensure that the <span class="code">kernel_id</span>
+class is not an aggregate.
+<em>&#8212;&#160;end&#160;note</em>]</p>
+</div>
+<div class="paragraph">
+<p>A synopsis of the <span class="code">kernel_id</span> class is shown below along with a
 description of its member functions.
 Additionally, this class provides the common special member functions and common
 member functions that are listed in <a href="#sec:reference-semantics">Section 4.5.2</a> in
@@ -33531,7 +33736,14 @@ associated with the same context, have the same set of associated devices, and
 contain the same set of device images.</p>
 </div>
 <div class="paragraph">
-<p>There is no public default constructor for this class.</p>
+<p>The implementation constructs instances of the <span class="code">kernel_bundle</span> class.
+Applications that attempt to default construct a <span class="code">kernel_bundle</span> object
+are ill formed, and the implementation must issue a diagnostic in this case.</p>
+</div>
+<div class="paragraph">
+<p>[<em>Note:</em> If using C++17, implementations must ensure that the
+<span class="code">kernel_bundle</span> class is not an aggregate.
+<em>&#8212;&#160;end&#160;note</em>]</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -33969,7 +34181,14 @@ member functions that are listed in <a href="#sec:reference-semantics">Section 4
 <a href="#table.hiddenfriends.common.reference">Table 8</a>, respectively.</p>
 </div>
 <div class="paragraph">
-<p>There is no public default constructor for this class.</p>
+<p>The implementation constructs instances of the <span class="code">kernel</span> class.
+Applications that attempt to default construct a <span class="code">kernel</span> object are ill
+formed, and the implementation must issue a diagnostic in this case.</p>
+</div>
+<div class="paragraph">
+<p>[<em>Note:</em> If using C++17, implementations must ensure that the <span class="code">kernel</span>
+class is not an aggregate.
+<em>&#8212;&#160;end&#160;note</em>]</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -34334,6 +34553,16 @@ member functions that are listed in <a href="#sec:reference-semantics">Section 4
 <a href="#table.specialmembers.common.reference">Table 7</a> and
 <a href="#table.hiddenfriends.common.reference">Table 8</a>, respectively.</p>
 </div>
+<div class="paragraph">
+<p>The implementation constructs instances of the <span class="code">device_image</span> class.
+Applications that attempt to default construct a <span class="code">device_image</span> object are
+ill formed, and the implementation must issue a diagnostic in this case.</p>
+</div>
+<div class="paragraph">
+<p>[<em>Note:</em> If using C++17, implementations must ensure that the
+<span class="code">device_image</span> class is not an aggregate.
+<em>&#8212;&#160;end&#160;note</em>]</p>
+</div>
 <div class="listingblock">
 <div class="content">
 <pre class="rouge highlight nowrap"><code data-lang="sycl"><table class="linenotable"><tbody><tr><td class="linenos gl"><pre class="lineno"> 1
@@ -34362,9 +34591,6 @@ member functions that are listed in <a href="#sec:reference-semantics">Section 4
 <span class="p">}</span> <span class="c1">// namespace sycl</span>
 </pre></td></tr></tbody></table></code></pre>
 </div>
-</div>
-<div class="paragraph">
-<p>There is no public constructor for this class.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -35083,10 +35309,8 @@ a device copyable type in that case and the specialization is ignored.</p>
 <div class="paragraph">
 <p>A SYCL application passes parameters to a kernel in different ways depending on
 whether the kernel is a named function object or a lambda expression.
-If the kernel is a named function object, the <span class="code">operator()</span> member function
-(or other member functions that it calls) may reference member variables inside
-the same named function object.
-Any such member variables become parameters to the kernel.
+If the kernel is a named function object, all non-static member variables of the
+named function object become parameters to the kernel.
 If the kernel is a lambda expression, any variables captured by the lambda
 become parameters to the kernel.</p>
 </div>
@@ -40349,6 +40573,12 @@ operations in device code with a syntax similar to the C&#43;&#43; standard
 The <span class="code">sycl::atomic_ref</span> class must not be used in host code.</p>
 </div>
 <div class="paragraph">
+<p>The referenced object of type <span class="code">T</span> must not reside in the private address
+space.
+If <span class="code">atomic_ref</span> is constructed with a reference to an object in the
+private address space, the behavior is undefined.</p>
+</div>
+<div class="paragraph">
 <p>Unlike <span class="code">std::atomic_ref</span>, <span class="code">sycl::atomic_ref</span> does not provide a
 default memory ordering for its operations.
 Instead, the application must specify a default ordering via the
@@ -40372,7 +40602,11 @@ arguments default to <span class="code">memory_order::seq_cst</span>.</p>
 <span class="code">DefaultScope</span>, which allows the application to define a default memory
 scope for the atomic operations.
 Most member functions also provide an optional parameter that allows the
-application to override this default.</p>
+application to override this default.
+A member function must not be invoked with <span class="code">memory_scope::work_item</span>,
+whether by using the default scope or by explicitly specifying a scope.
+If a member function is invoked with <span class="code">memory_scope::work_item</span> the
+behavior is undefined.</p>
 </div>
 <div class="paragraph">
 <p>The <span class="code">sycl::atomic_ref</span> class also has a template parameter
@@ -41009,6 +41243,9 @@ not lock-free, may prevent overall progress.</p>
       <span class="code">memory_order::release</span> or <span class="code">memory_order::seq_cst</span>.
       This function is only supported for 64-bit data types on devices that have
       <span class="code">aspect::atomic64</span>.</p>
+</div>
+<div class="paragraph">
+<p>The behavior is undefined if scope is <span class="code">memory_scope::work_item</span>.</p>
 </div></div></td>
 </tr>
 <tr>
@@ -41034,6 +41271,9 @@ not lock-free, may prevent overall progress.</p>
       <span class="code">memory_order::relaxed</span>, <span class="code">memory_order::acquire</span>,
       or <span class="code">memory_order::seq_cst</span>.  This function is only supported for
       64-bit data types on devices that have <span class="code">aspect::atomic64</span>.</p>
+</div>
+<div class="paragraph">
+<p>The behavior is undefined if scope is <span class="code">memory_scope::work_item</span>.</p>
 </div></div></td>
 </tr>
 <tr>
@@ -41059,6 +41299,9 @@ not lock-free, may prevent overall progress.</p>
       returns the original value of the referenced object.
       This function is only supported for 64-bit data types on devices that have
       <span class="code">aspect::atomic64</span>.</p>
+</div>
+<div class="paragraph">
+<p>The behavior is undefined if scope is <span class="code">memory_scope::work_item</span>.</p>
 </div></div></td>
 </tr>
 <tr>
@@ -41086,6 +41329,9 @@ successful. The <span class="code">failure</span> memory order of this atomic op
 <div class="paragraph">
 <p>This function is only supported for 64-bit data types on devices that have
 <span class="code">aspect::atomic64</span>.</p>
+</div>
+<div class="paragraph">
+<p>The behavior is undefined if scope is <span class="code">memory_scope::work_item</span>.</p>
 </div></div></td>
 </tr>
 <tr>
@@ -41112,6 +41358,9 @@ successful. The <span class="code">failure</span> memory order of this atomic op
 <span class="p">}</span>
 <span class="k">return</span> <span class="nf">compare_exchange_weak</span><span class="p">(</span><span class="n">expected</span><span class="p">,</span> <span class="n">desired</span><span class="p">,</span> <span class="n">success</span><span class="p">,</span> <span class="n">failure</span><span class="p">,</span> <span class="n">scope</span><span class="p">);</span></code></pre>
 </div>
+</div>
+<div class="paragraph">
+<p>The behavior is undefined if scope is <span class="code">memory_scope::work_item</span>.</p>
 </div></div></td>
 </tr>
 <tr>
@@ -41138,6 +41387,9 @@ successful. The <span class="code">failure</span> memory order of this atomic op
 <div class="paragraph">
 <p>This function is only supported for 64-bit data types on devices that have
 <span class="code">aspect::atomic64</span>.</p>
+</div>
+<div class="paragraph">
+<p>The behavior is undefined if scope is <span class="code">memory_scope::work_item</span>.</p>
 </div></div></td>
 </tr>
 <tr>
@@ -41194,6 +41446,9 @@ successful. The <span class="code">failure</span> memory order of this atomic op
       the result to the value of the referenced object.  Returns the original
       value of the referenced object.  This function is only supported for 64-bit
       data types on devices that have <span class="code">aspect::atomic64</span>.</p>
+</div>
+<div class="paragraph">
+<p>The behavior is undefined if scope is <span class="code">memory_scope::work_item</span>.</p>
 </div></div></td>
 </tr>
 <tr>
@@ -41239,6 +41494,9 @@ successful. The <span class="code">failure</span> memory order of this atomic op
       the result to the value of the referenced object.  Returns the original
       value of the referenced object.  This function is only supported for 64-bit
       data types on devices that have <span class="code">aspect::atomic64</span>.</p>
+</div>
+<div class="paragraph">
+<p>The behavior is undefined if scope is <span class="code">memory_scope::work_item</span>.</p>
 </div></div></td>
 </tr>
 <tr>
@@ -41285,6 +41543,9 @@ successful. The <span class="code">failure</span> memory order of this atomic op
       original value of the referenced object.  This function is only supported
       for 64-bit data types on devices that have
       <span class="code">aspect::atomic64</span>.</p>
+</div>
+<div class="paragraph">
+<p>The behavior is undefined if scope is <span class="code">memory_scope::work_item</span>.</p>
 </div></div></td>
 </tr>
 <tr>
@@ -41311,6 +41572,9 @@ successful. The <span class="code">failure</span> memory order of this atomic op
       original value of the referenced object.  This function is only supported
       for 64-bit data types on devices that have
       <span class="code">aspect::atomic64</span>.</p>
+</div>
+<div class="paragraph">
+<p>The behavior is undefined if scope is <span class="code">memory_scope::work_item</span>.</p>
 </div></div></td>
 </tr>
 <tr>
@@ -41337,6 +41601,9 @@ successful. The <span class="code">failure</span> memory order of this atomic op
       original value of the referenced object.  This function is only supported
       for 64-bit data types on devices that have
       <span class="code">aspect::atomic64</span>.</p>
+</div>
+<div class="paragraph">
+<p>The behavior is undefined if scope is <span class="code">memory_scope::work_item</span>.</p>
 </div></div></td>
 </tr>
 <tr>
@@ -41363,6 +41630,9 @@ successful. The <span class="code">failure</span> memory order of this atomic op
       original value of the referenced object.  This function is only supported
       for 64-bit data types on devices that have
       <span class="code">aspect::atomic64</span>.</p>
+</div>
+<div class="paragraph">
+<p>The behavior is undefined if scope is <span class="code">memory_scope::work_item</span>.</p>
 </div></div></td>
 </tr>
 <tr>
@@ -41379,6 +41649,9 @@ successful. The <span class="code">failure</span> memory order of this atomic op
       original value of the referenced object.  This function is only supported
       for 64-bit data types on devices that have
       <span class="code">aspect::atomic64</span>.</p>
+</div>
+<div class="paragraph">
+<p>The behavior is undefined if scope is <span class="code">memory_scope::work_item</span>.</p>
 </div></div></td>
 </tr>
 </tbody>
@@ -41409,6 +41682,9 @@ successful. The <span class="code">failure</span> memory order of this atomic op
       the result to the value of the referenced object.  Returns the original
       value of the referenced object.  This function is only supported for 64-bit
       data types on devices that have <span class="code">aspect::atomic64</span>.</p>
+</div>
+<div class="paragraph">
+<p>The behavior is undefined if scope is <span class="code">memory_scope::work_item</span>.</p>
 </div></div></td>
 </tr>
 <tr>
@@ -41434,6 +41710,9 @@ successful. The <span class="code">failure</span> memory order of this atomic op
       the result to the value of the referenced object.  Returns the original
       value of the referenced object.  This function is only supported for 64-bit
       data types on devices that have <span class="code">aspect::atomic64</span>.</p>
+</div>
+<div class="paragraph">
+<p>The behavior is undefined if scope is <span class="code">memory_scope::work_item</span>.</p>
 </div></div></td>
 </tr>
 <tr>
@@ -41459,6 +41738,9 @@ successful. The <span class="code">failure</span> memory order of this atomic op
       and assigns the result to the value of the referenced object. Returns the
       original value of the referenced object.  This function is only supported for
       64-bit data types on devices that have <span class="code">aspect::atomic64</span>.</p>
+</div>
+<div class="paragraph">
+<p>The behavior is undefined if scope is <span class="code">memory_scope::work_item</span>.</p>
 </div></div></td>
 </tr>
 <tr>
@@ -41474,6 +41756,9 @@ successful. The <span class="code">failure</span> memory order of this atomic op
       and assigns the result to the value of the referenced object. Returns the
       original value of the referenced object.  This function is only supported for
       64-bit data types on devices that have <span class="code">aspect::atomic64</span>.</p>
+</div>
+<div class="paragraph">
+<p>The behavior is undefined if scope is <span class="code">memory_scope::work_item</span>.</p>
 </div></div></td>
 </tr>
 </tbody>
@@ -41505,6 +41790,9 @@ successful. The <span class="code">failure</span> memory order of this atomic op
       the result to the value of the referenced object.  Returns the original
       value of the referenced object.  This function is only supported for 64-bit
       pointers on devices that have <span class="code">aspect::atomic64</span>.</p>
+</div>
+<div class="paragraph">
+<p>The behavior is undefined if scope is <span class="code">memory_scope::work_item</span>.</p>
 </div></div></td>
 </tr>
 <tr>
@@ -41551,6 +41839,9 @@ successful. The <span class="code">failure</span> memory order of this atomic op
       the result to the value of the referenced object.  Returns the original
       value of the referenced object.  This function is only supported for 64-bit
       pointers on devices that have <span class="code">aspect::atomic64</span>.</p>
+</div>
+<div class="paragraph">
+<p>The behavior is undefined if scope is <span class="code">memory_scope::work_item</span>.</p>
 </div></div></td>
 </tr>
 <tr>
@@ -54664,17 +54955,18 @@ The following aspects are those that correspond to optional kernel features:</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>In addition, the following C&#43;&#43; attributes from <a href="#sec:kernel.attributes">Section 5.8.1</a> also
-correspond to optional kernel features because they force the kernel to be
-compiled in a way that might not run on all devices:</p>
+<p>In addition, the following C&#43;&#43; attributes from &lt;sec:kernel.attributes&gt;
+correspond to optional kernel features for some integer constant values of
+<span class="code">size</span>, since not all devices will support arbitrary work group and sub
+group sizes.</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><span class="code">reqd_work_group_size()</span></p>
+<p><span class="code">reqd_work_group_size(size)</span></p>
 </li>
 <li>
-<p><span class="code">reqd_sub_group_size()</span></p>
+<p><span class="code">reqd_sub_group_size(size)</span></p>
 </li>
 </ul>
 </div>
@@ -54682,7 +54974,11 @@ compiled in a way that might not run on all devices:</p>
 <p>In order to guarantee source code portability of SYCL applications that use
 optional kernel features, all SYCL implementations must be able to compile
 device code that uses these optional features regardless of whether the
-implementation supports the features on any of its devices.</p>
+implementation supports the features on any of its devices.
+For the two C++ attributes listed above, all implementations must be able to
+compile kernels that are decorated with these attributes regardless of whether
+the implementation supports the specified work-group or sub-group size on any of
+its devices.</p>
 </div>
 <div class="paragraph">
 <p>Of course, applications that make use of optional kernel features should ensure
@@ -55464,10 +55760,11 @@ The macro has no effect when the function is called from host code.</p>
 </div>
 <div class="paragraph">
 <p>In order to declare a function with <span class="code">SYCL_EXTERNAL</span>, the macro name
-<span class="code">SYCL_EXTERNAL</span> must appear before the function declaration.
-If the function is also decorated with C&#43;&#43; attributes that appear before the
-declaration, the <span class="code">SYCL_EXTERNAL</span> may appear before, after, or between
-these attributes.
+<span class="code">SYCL_EXTERNAL</span> must appear after the template head (i.e.,
+<span class="code">template &lt;...&gt;</span>) if present, and before the function&#8217;s return type or
+declaration specifiers (such as <span class="code">inline</span> or <span class="code">static</span>).
+<span class="code">SYCL_EXTERNAL</span> may appear before, after, or between C++ attributes in
+this location.
 The following example demonstrates the use of <span class="code">SYCL_EXTERNAL</span>.</p>
 </div>
 <div class="listingblock">
@@ -55483,17 +55780,27 @@ The following example demonstrates the use of <span class="code">SYCL_EXTERNAL</
  9
 10
 11
+12
+13
+14
+15
+16
 </pre></td><td class="code"><pre><span class="cp">#include</span> <span class="cpf">&lt;sycl/sycl.hpp&gt;</span><span class="cp">
 </span>
-<span class="go">SYCL_EXTERNAL</span> <span class="kt">void</span> <span class="nf">Foo</span><span class="p">();</span>
+<span class="go">SYCL_EXTERNAL</span> <span class="kt">void</span> <span class="nf">A1</span><span class="p">();</span>               <span class="c1">// OK</span>
+<span class="kt">void</span> <span class="nf">A1</span><span class="p">()</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">}</span>                <span class="c1">// OK; redeclaration</span>
+<span class="kt">void</span> <span class="nf">A2</span><span class="p">();</span>                             <span class="c1">// OK</span>
+<span class="go">SYCL_EXTERNAL</span> <span class="kt">void</span> <span class="nf">A2</span><span class="p">()</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">}</span>  <span class="c1">// ERROR: SYCL_EXTERNAL not on first declaration.</span>
+<span class="go">SYCL_EXTERNAL</span> <span class="kt">void</span> <span class="nf">A3</span><span class="p">()</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">}</span>  <span class="c1">// OK</span>
 
-<span class="go">SYCL_EXTERNAL</span> <span class="kt">void</span> <span class="nf">Bar</span><span class="p">()</span> <span class="p">{</span> <span class="cm">/* ... */</span> <span class="p">}</span>
+<span class="go">SYCL_EXTERNAL</span> <span class="k">extern</span> <span class="kt">void</span> <span class="nf">B1</span><span class="p">();</span>  <span class="c1">// OK</span>
+<span class="k">extern</span> <span class="go">SYCL_EXTERNAL</span> <span class="kt">void</span> <span class="nf">B2</span><span class="p">();</span>  <span class="c1">// ERROR: SYCL_EXTERNAL after declaration specifiers.</span>
 
-<span class="go">SYCL_EXTERNAL</span> <span class="k">extern</span> <span class="kt">void</span> <span class="nf">Baz</span><span class="p">();</span>
+<span class="p">[[</span><span class="n">maybe_unused</span><span class="p">]]</span> <span class="go">SYCL_EXTERNAL</span> <span class="kt">void</span> <span class="nf">C1</span><span class="p">();</span>  <span class="c1">// OK</span>
+<span class="go">SYCL_EXTERNAL</span> <span class="p">[[</span><span class="n">maybe_unused</span><span class="p">]]</span> <span class="kt">void</span> <span class="nf">C2</span><span class="p">();</span>  <span class="c1">// OK</span>
 
-<span class="p">[[</span><span class="n">nodiscard</span><span class="p">]]</span> <span class="go">SYCL_EXTERNAL</span> <span class="kt">void</span> <span class="nf">Important</span><span class="p">();</span>
-
-<span class="go">SYCL_EXTERNAL</span> <span class="p">[[</span><span class="n">nodiscard</span><span class="p">]]</span> <span class="kt">void</span> <span class="nf">AlsoImportant</span><span class="p">();</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="nc">T</span><span class="p">&gt;</span> <span class="go">SYCL_EXTERNAL</span> <span class="kt">void</span> <span class="nf">D</span><span class="p">();</span>    <span class="c1">// OK</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="p">&gt;</span> <span class="go">SYCL_EXTERNAL</span> <span class="kr">inline</span> <span class="kt">void</span> <span class="n">D</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span>  <span class="c1">// OK</span>
 </pre></td></tr></tbody></table></code></pre>
 </div>
 </div>
@@ -56038,6 +56345,8 @@ introduced in <a href="#chapter:sycl-programming-interface">Chapter 4</a>.</p>
 139
 140
 141
+142
+143
 </pre></td><td class="code"><pre><span class="k">namespace</span> <span class="gh">sycl</span> <span class="p">{</span>
 <span class="k">namespace</span> <span class="gh">info</span> <span class="p">{</span>
 <span class="k">namespace</span> <span class="kr">device</span> <span class="p">{</span>
@@ -56054,6 +56363,7 @@ introduced in <a href="#chapter:sycl-programming-interface">Chapter 4</a>.</p>
 <span class="k">struct</span> <span class="nc">preferred_vector_width_short</span><span class="p">;</span>
 <span class="k">struct</span> <span class="nc">preferred_vector_width_int</span><span class="p">;</span>
 <span class="k">struct</span> <span class="nc">preferred_vector_width_long</span><span class="p">;</span>
+<span class="k">struct</span> <span class="nc">preferred_vector_width_long_long</span><span class="p">;</span>
 <span class="k">struct</span> <span class="nc">preferred_vector_width_float</span><span class="p">;</span>
 <span class="k">struct</span> <span class="nc">preferred_vector_width_double</span><span class="p">;</span>
 <span class="k">struct</span> <span class="nc">preferred_vector_width_half</span><span class="p">;</span>
@@ -56061,6 +56371,7 @@ introduced in <a href="#chapter:sycl-programming-interface">Chapter 4</a>.</p>
 <span class="k">struct</span> <span class="nc">native_vector_width_short</span><span class="p">;</span>
 <span class="k">struct</span> <span class="nc">native_vector_width_int</span><span class="p">;</span>
 <span class="k">struct</span> <span class="nc">native_vector_width_long</span><span class="p">;</span>
+<span class="k">struct</span> <span class="nc">native_vector_width_long_long</span><span class="p">;</span>
 <span class="k">struct</span> <span class="nc">native_vector_width_float</span><span class="p">;</span>
 <span class="k">struct</span> <span class="nc">native_vector_width_double</span><span class="p">;</span>
 <span class="k">struct</span> <span class="nc">native_vector_width_half</span><span class="p">;</span>
@@ -56097,7 +56408,7 @@ introduced in <a href="#chapter:sycl-programming-interface">Chapter 4</a>.</p>
 <span class="k">struct</span> <span class="nc">atomic_memory_scope_capabilities</span><span class="p">;</span>
 <span class="k">struct</span> <span class="nc">atomic_fence_scope_capabilities</span><span class="p">;</span>
 <span class="k">struct</span> <span class="nc">profiling_timer_resolution</span><span class="p">;</span>
-<span class="k">struct</span> <span class="nc">is_endian_little</span><span class="p">;</span>
+<span class="k">struct</span> <span class="nc">is_endian_little</span><span class="p">;</span> <span class="c1">// Deprecated</span>
 <span class="k">struct</span> <span class="nc">is_available</span><span class="p">;</span>
 <span class="k">struct</span> <span class="nc">is_compiler_available</span><span class="p">;</span> <span class="c1">// Deprecated</span>
 <span class="k">struct</span> <span class="nc">is_linker_available</span><span class="p">;</span>   <span class="c1">// Deprecated</span>
@@ -56109,13 +56420,13 @@ introduced in <a href="#chapter:sycl-programming-interface">Chapter 4</a>.</p>
 <span class="k">struct</span> <span class="nc">name</span><span class="p">;</span>
 <span class="k">struct</span> <span class="nc">vendor</span><span class="p">;</span>
 <span class="k">struct</span> <span class="nc">driver_version</span><span class="p">;</span>
-<span class="k">struct</span> <span class="nc">profile</span><span class="p">;</span>
+<span class="k">struct</span> <span class="nc">profile</span><span class="p">;</span> <span class="c1">// Deprecated</span>
 <span class="k">struct</span> <span class="nc">version</span><span class="p">;</span>
 <span class="k">struct</span> <span class="nc">backend_version</span><span class="p">;</span>
 <span class="k">struct</span> <span class="nc">aspects</span><span class="p">;</span>
 <span class="k">struct</span> <span class="nc">extensions</span><span class="p">;</span> <span class="c1">// Deprecated</span>
-<span class="k">struct</span> <span class="nc">printf_buffer_size</span><span class="p">;</span>
-<span class="k">struct</span> <span class="nc">preferred_interop_user_sync</span><span class="p">;</span>
+<span class="k">struct</span> <span class="nc">printf_buffer_size</span><span class="p">;</span> <span class="c1">// Deprecated</span>
+<span class="k">struct</span> <span class="nc">preferred_interop_user_sync</span><span class="p">;</span> <span class="c1">// Deprecated</span>
 <span class="k">struct</span> <span class="nc">parent_device</span><span class="p">;</span>
 <span class="k">struct</span> <span class="nc">partition_max_sub_devices</span><span class="p">;</span>
 <span class="k">struct</span> <span class="nc">partition_properties</span><span class="p">;</span>
@@ -58585,7 +58896,8 @@ scope.</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>The device selection now relies on a simpler API based on ranking functions used
+<p>The <span class="code">device_selector</span> class has been removed.
+The device selection now relies on a simpler API based on ranking functions used
 as <a href="#device-selector">device selectors</a> described in <a href="#sec:device-selector">Section 4.6.1.1</a>.</p>
 </div>
 <div class="paragraph">
@@ -59121,7 +59433,7 @@ and less verbose than the interface provided by <span class="code">sycl::group</
 </div>
 <div class="paragraph">
 <p>Some features of this extension are only available when a SYCL implementation
-conforms to {cpp23} or later.</p>
+conforms to C++23 or later.</p>
 </div>
 </div>
 <div class="sect3">
@@ -59255,7 +59567,7 @@ group.</p>
 </div>
 </div>
 <div class="paragraph">
-<p><em>Minimum C++ Version</em>: {cpp23}</p>
+<p><em>Minimum C++ Version</em>: C++23</p>
 </div>
 <div class="paragraph">
 <p><em>Returns</em>: The number of work-items in each dimension of the group.</p>
@@ -59269,7 +59581,7 @@ group.</p>
 </div>
 </div>
 <div class="paragraph">
-<p><em>Minimum C++ Version</em>: {cpp23}</p>
+<p><em>Minimum C++ Version</em>: C++23</p>
 </div>
 <div class="paragraph">
 <p><em>Preconditions</em>: <span class="code">r &lt; dimensions</span> is <span class="code">true</span>.</p>
@@ -59286,7 +59598,7 @@ group.</p>
 </div>
 </div>
 <div class="paragraph">
-<p><em>Minimum C++ Version</em>: {cpp23}</p>
+<p><em>Minimum C++ Version</em>: C++23</p>
 </div>
 <div class="paragraph">
 <p><em>Effects</em>: Equivalent to <span class="code">return extents_type::rank();</span>.</p>
@@ -59300,7 +59612,7 @@ group.</p>
 </div>
 </div>
 <div class="paragraph">
-<p><em>Minimum C++ Version</em>: {cpp23}</p>
+<p><em>Minimum C++ Version</em>: C++23</p>
 </div>
 <div class="paragraph">
 <p><em>Effects</em>: Equivalent to <span class="code">return extents_type::rank_dynamic();</span>.</p>
@@ -59314,7 +59626,7 @@ group.</p>
 </div>
 </div>
 <div class="paragraph">
-<p><em>Minimum C++ Version</em>: {cpp23}</p>
+<p><em>Minimum C++ Version</em>: C++23</p>
 </div>
 <div class="paragraph">
 <p><em>Effects</em>: Equivalent to <span class="code">return extents_type::static_extent(r);</span>.</p>
@@ -59504,7 +59816,7 @@ work-group within the <a href="#nd-range">nd-range</a>.</p>
 </div>
 </div>
 <div class="paragraph">
-<p><em>Minimum C++ Version</em>: {cpp23}</p>
+<p><em>Minimum C++ Version</em>: C++23</p>
 </div>
 <div class="paragraph">
 <p><em>Returns</em>: The number of work-items in each dimension of the work-group.</p>
@@ -59518,7 +59830,7 @@ work-group within the <a href="#nd-range">nd-range</a>.</p>
 </div>
 </div>
 <div class="paragraph">
-<p><em>Minimum C++ Version</em>: {cpp23}</p>
+<p><em>Minimum C++ Version</em>: C++23</p>
 </div>
 <div class="paragraph">
 <p><em>Preconditions</em>: <span class="code">r &lt; dimensions</span> is <span class="code">true</span>.</p>
@@ -59536,7 +59848,7 @@ work-group.</p>
 </div>
 </div>
 <div class="paragraph">
-<p><em>Minimum C++ Version</em>: {cpp23}</p>
+<p><em>Minimum C++ Version</em>: C++23</p>
 </div>
 <div class="paragraph">
 <p><em>Effects</em>: Equivalent to <span class="code">return extents_type::rank();</span>.</p>
@@ -59550,7 +59862,7 @@ work-group.</p>
 </div>
 </div>
 <div class="paragraph">
-<p><em>Minimum C++ Version</em>: {cpp23}</p>
+<p><em>Minimum C++ Version</em>: C++23</p>
 </div>
 <div class="paragraph">
 <p><em>Effects</em>: Equivalent to <span class="code">return extents_type::rank_dynamic();</span>.</p>
@@ -59564,7 +59876,7 @@ work-group.</p>
 </div>
 </div>
 <div class="paragraph">
-<p><em>Minimum C++ Version</em>: {cpp23}</p>
+<p><em>Minimum C++ Version</em>: C++23</p>
 </div>
 <div class="paragraph">
 <p><em>Effects</em>: Equivalent to <span class="code">return extents_type::static_extent(r);</span>.</p>
@@ -59709,7 +60021,7 @@ sub-group within its parent work-group.</p>
 </div>
 </div>
 <div class="paragraph">
-<p><em>Minimum C++ Version</em>: {cpp23}</p>
+<p><em>Minimum C++ Version</em>: C++23</p>
 </div>
 <div class="paragraph">
 <p><em>Returns</em>: The number of work-items in each dimension of the sub-group.</p>
@@ -59723,7 +60035,7 @@ sub-group within its parent work-group.</p>
 </div>
 </div>
 <div class="paragraph">
-<p><em>Minimum C++ Version</em>: {cpp23}</p>
+<p><em>Minimum C++ Version</em>: C++23</p>
 </div>
 <div class="paragraph">
 <p><em>Preconditions</em>: <span class="code">r &lt; dimensions</span> is <span class="code">true</span>.</p>
@@ -59740,7 +60052,7 @@ sub-group within its parent work-group.</p>
 </div>
 </div>
 <div class="paragraph">
-<p><em>Minimum C++ Version</em>: {cpp23}</p>
+<p><em>Minimum C++ Version</em>: C++23</p>
 </div>
 <div class="paragraph">
 <p><em>Effects</em>: Equivalent to <span class="code">return extents_type::rank();</span>.</p>
@@ -59754,7 +60066,7 @@ sub-group within its parent work-group.</p>
 </div>
 </div>
 <div class="paragraph">
-<p><em>Minimum C++ Version</em>: {cpp23}</p>
+<p><em>Minimum C++ Version</em>: C++23</p>
 </div>
 <div class="paragraph">
 <p><em>Effects</em>: Equivalent to <span class="code">return extents_type::rank_dynamic();</span>.</p>
@@ -59768,7 +60080,7 @@ sub-group within its parent work-group.</p>
 </div>
 </div>
 <div class="paragraph">
-<p><em>Minimum C++ Version</em>: {cpp23}</p>
+<p><em>Minimum C++ Version</em>: C++23</p>
 </div>
 <div class="paragraph">
 <p><em>Effects</em>: Equivalent to <span class="code">return extents_type::static_extent(r);</span>.</p>
@@ -59906,7 +60218,7 @@ member-item within its parent group.</p>
 </div>
 </div>
 <div class="paragraph">
-<p><em>Minimum C++ Version</em>: {cpp23}</p>
+<p><em>Minimum C++ Version</em>: C++23</p>
 </div>
 <div class="paragraph">
 <p><em>Returns</em>: An <span class="code">extents</span> where all dimensions are 1.</p>
@@ -59920,7 +60232,7 @@ member-item within its parent group.</p>
 </div>
 </div>
 <div class="paragraph">
-<p><em>Minimum C++ Version</em>: {cpp23}</p>
+<p><em>Minimum C++ Version</em>: C++23</p>
 </div>
 <div class="paragraph">
 <p><em>Preconditions</em>: <span class="code">r &lt; dimensions</span> is <span class="code">true</span>.</p>
@@ -59937,7 +60249,7 @@ member-item within its parent group.</p>
 </div>
 </div>
 <div class="paragraph">
-<p><em>Minimum C++ Version</em>: {cpp23}</p>
+<p><em>Minimum C++ Version</em>: C++23</p>
 </div>
 <div class="paragraph">
 <p><em>Effects</em>: Equivalent to <span class="code">return extents_type::rank();</span>.</p>
@@ -59951,7 +60263,7 @@ member-item within its parent group.</p>
 </div>
 </div>
 <div class="paragraph">
-<p><em>Minimum C++ Version</em>: {cpp23}</p>
+<p><em>Minimum C++ Version</em>: C++23</p>
 </div>
 <div class="paragraph">
 <p><em>Effects</em>: Equivalent to <span class="code">return extents_type::rank_dynamic();</span>.</p>
@@ -59965,7 +60277,7 @@ member-item within its parent group.</p>
 </div>
 </div>
 <div class="paragraph">
-<p><em>Minimum C++ Version</em>: {cpp23}</p>
+<p><em>Minimum C++ Version</em>: C++23</p>
 </div>
 <div class="paragraph">
 <p><em>Effects</em>: Equivalent to <span class="code">return extents_type::static_extent(r);</span>.</p>
